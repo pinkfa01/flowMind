@@ -198,6 +198,7 @@ function CheckIn() {
 function Notes() {
   const [notes, setNotes] = useState<any[]>([])
   const [showModal, setShowModal] = useState(false)
+  const [editing, setEditing] = useState<any>(null)
 
   async function load() { setNotes(await dbQuery('SELECT * FROM reading_notes ORDER BY created_at DESC')) }
   useEffect(() => { load() }, [])
@@ -212,7 +213,7 @@ function Notes() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ color: 'var(--text2)', fontSize: 13 }}>{notes.length} notes</span>
-        <button onClick={() => setShowModal(true)} style={btnPrimary}><Plus size={14} /> New Note</button>
+        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> New Note</button>
       </div>
       {notes.length === 0 ? <EmptyState icon={BookOpen} text="No notes yet" /> : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -222,6 +223,7 @@ function Notes() {
                 <span style={{ fontWeight: 600, fontSize: 14 }}>{n.title}</span>
                 <span style={{ color: 'var(--text3)', fontSize: 12, marginLeft: 8 }}>{n.created_at?.slice(0, 10)}</span>
                 <div style={{ flex: 1 }} />
+                <button onClick={() => { setEditing(n); setShowModal(true) }} style={iconBtn}><Edit3 size={14} /></button>
                 <button onClick={() => del(n.id)} style={iconBtn}><Trash2 size={14} /></button>
               </div>
               {n.source_url && <a href={n.source_url} target="_blank" style={{ color: 'var(--accent)', fontSize: 12 }}>{n.source_url}</a>}
@@ -230,24 +232,28 @@ function Notes() {
           ))}
         </div>
       )}
-      {showModal && <NoteModal onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); load() }} />}
+      {showModal && <NoteModal note={editing} onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); load() }} />}
     </div>
   )
 }
 
-function NoteModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
-  const [title, setTitle] = useState('')
-  const [url, setUrl] = useState('')
-  const [content, setContent] = useState('')
+function NoteModal({ note, onClose, onSaved }: { note: any; onClose: () => void; onSaved: () => void }) {
+  const [title, setTitle] = useState(note?.title || '')
+  const [url, setUrl] = useState(note?.source_url || '')
+  const [content, setContent] = useState(note?.content || '')
 
   async function save() {
     if (!title.trim()) return
-    await dbRun('INSERT INTO reading_notes (title, source_url, content) VALUES (?,?,?)', [title, url, content])
+    if (note) {
+      await dbRun('UPDATE reading_notes SET title=?, source_url=?, content=? WHERE id=?', [title, url, content, note.id])
+    } else {
+      await dbRun('INSERT INTO reading_notes (title, source_url, content) VALUES (?,?,?)', [title, url, content])
+    }
     onSaved()
   }
 
   return (
-    <Modal onClose={onClose} title="New Note">
+    <Modal onClose={onClose} title={note ? 'Edit Note' : 'New Note'}>
       <input style={input} placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
       <input style={input} placeholder="Source URL" value={url} onChange={e => setUrl(e.target.value)} />
       <textarea style={{ ...input, resize: 'vertical', minHeight: 200 }} rows={10} placeholder="Content" value={content} onChange={e => setContent(e.target.value)} />
