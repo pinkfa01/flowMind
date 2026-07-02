@@ -6,7 +6,7 @@ const modules = [
   { path: '/english', title: '英语学习', desc: '单词本、每日打卡、笔记', icon: BookOpen, color: '#34c759' },
   { path: '/reading', title: '读书', desc: '书籍管理与阅读进度', icon: BookMarked, color: '#a855f7' },
   { path: '/journal', title: '日记', desc: '记录每天的心情与想法', icon: CalendarDays, color: '#ec4899' },
-  { path: '/physics-ai', title: '物理AI研究', desc: '投资笔记、行业动态、标的追踪', icon: Atom, color: '#ff9500' },
+  { path: '/physics-ai', title: 'AI研究', desc: '投资笔记、行业动态、标的追踪', icon: Atom, color: '#ff9500' },
 ]
 
 export default function Dashboard() {

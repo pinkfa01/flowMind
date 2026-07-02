@@ -41,7 +41,6 @@ function ReadingList() {
 
   const statusColors: any = { reading: '#3b82f6', completed: '#22c55e', archived: '#94a3b8' }
   const statusLabels: any = { reading: '在读', completed: '已读完', archived: '已归档' }
-  const typeLabels: any = { book: '书', audiobook: '有声书', ebook: '电子书' }
 
   return (
     <div>
@@ -55,23 +54,12 @@ function ReadingList() {
             <div key={m.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontWeight: 600, fontSize: 14, flex: 1 }}>{m.title}</span>
-                <span style={{ padding: '2px 8px', borderRadius: 4, background: 'var(--bg)', fontSize: 11, color: 'var(--text2)', marginRight: 8 }}>{typeLabels[m.type] || m.type}</span>
                 <button onClick={() => cycleStatus(m)} style={{ padding: '2px 10px', borderRadius: 4, border: 'none', background: (statusColors[m.status] || '#94a3b8') + '20', color: statusColors[m.status] || '#94a3b8', fontSize: 12, cursor: 'pointer', marginRight: 8 }}>{statusLabels[m.status] || m.status}</button>
                 <button onClick={() => { setEditing(m); setShowModal(true) }} style={iconBtn}><Edit3 size={14} /></button>
                 <button onClick={() => del(m.id)} style={iconBtn}><Trash2 size={14} /></button>
               </div>
               {m.source_url && <a href={m.source_url} target="_blank" style={{ color: 'var(--accent)', fontSize: 12, display: 'block', marginTop: 2 }}>详情链接</a>}
               {m.notes && <p style={{ color: 'var(--text2)', fontSize: 13, margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{m.notes}</p>}
-              {m.status === 'reading' && (
-                <div style={{ marginTop: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--bg)' }}>
-                      <div style={{ width: `${m.progress}%`, height: '100%', borderRadius: 3, background: 'var(--accent)' }} />
-                    </div>
-                    <span style={{ fontSize: 12, color: 'var(--text3)' }}>{m.progress}%</span>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -82,15 +70,15 @@ function ReadingList() {
 }
 
 function ReadingListModal({ item, onClose, onSaved }: { item: any; onClose: () => void; onSaved: () => void }) {
-  const [f, setF] = useState(item ? { title: item.title, source_url: item.source_url, type: item.type, status: item.status, progress: item.progress, notes: item.notes }
-    : { title: '', source_url: '', type: 'book', status: 'reading', progress: 0, notes: '' })
+  const [f, setF] = useState(item ? { title: item.title, source_url: item.source_url, status: item.status, notes: item.notes }
+    : { title: '', source_url: '', status: 'reading', notes: '' })
 
   async function save() {
     if (!f.title.trim()) return
     if (item) {
-      await dbRun('UPDATE reading_materials SET title=?, source_url=?, type=?, status=?, progress=?, notes=? WHERE id=?', [f.title, f.source_url, f.type, f.status, f.progress, f.notes, item.id])
+      await dbRun('UPDATE reading_materials SET title=?, source_url=?, status=?, notes=? WHERE id=?', [f.title, f.source_url, f.status, f.notes, item.id])
     } else {
-      await dbRun('INSERT INTO reading_materials (title, source_url, type, status, progress, notes) VALUES (?,?,?,?,?,?)', [f.title, f.source_url, f.type, f.status, f.progress, f.notes])
+      await dbRun('INSERT INTO reading_materials (title, source_url, status, notes) VALUES (?,?,?,?)', [f.title, f.source_url, f.status, f.notes])
     }
     onSaved()
   }
@@ -105,29 +93,15 @@ function ReadingListModal({ item, onClose, onSaved }: { item: any; onClose: () =
         <label style={labelStyle}>链接（可选）</label>
         <input style={{ ...input, marginBottom: 0 }} placeholder="https://..." value={f.source_url} onChange={e => setF({ ...f, source_url: e.target.value })} />
       </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <div style={{ flex: 1 }}>
-          <label style={labelStyle}>类型</label>
-          <select style={{ ...input, marginBottom: 0 }} value={f.type} onChange={e => setF({ ...f, type: e.target.value })}>
-            <option value="book">书</option><option value="ebook">电子书</option><option value="audiobook">有声书</option>
-          </select>
-        </div>
-        <div style={{ flex: 1 }}>
-          <label style={labelStyle}>状态</label>
-          <select style={{ ...input, marginBottom: 0 }} value={f.status} onChange={e => setF({ ...f, status: e.target.value })}>
-            <option value="reading">在读</option><option value="completed">已读完</option><option value="archived">已归档</option>
-          </select>
-        </div>
+      <div>
+        <label style={labelStyle}>状态</label>
+        <select style={{ ...input, marginBottom: 0 }} value={f.status} onChange={e => setF({ ...f, status: e.target.value })}>
+          <option value="reading">在读</option><option value="completed">已读完</option><option value="archived">已归档</option>
+        </select>
       </div>
-      {f.status === 'reading' && (
-        <div>
-          <label style={labelStyle}>阅读进度: {f.progress}%</label>
-          <input type="range" min={0} max={100} value={f.progress} style={{ width: '100%' }} onChange={e => setF({ ...f, progress: Number(e.target.value) })} />
-        </div>
-      )}
       <div>
         <label style={labelStyle}>读书笔记</label>
-        <textarea style={{ ...input, resize: 'vertical', minHeight: 60, marginBottom: 0 }} rows={3} placeholder="摘录、生词、感想..." value={f.notes} onChange={e => setF({ ...f, notes: e.target.value })} />
+        <textarea style={{ ...input, resize: 'vertical', minHeight: 60, marginBottom: 0 }} rows={3} placeholder="摘录、感想..." value={f.notes} onChange={e => setF({ ...f, notes: e.target.value })} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
         <button onClick={onClose} style={btnSecondary}>取消</button>

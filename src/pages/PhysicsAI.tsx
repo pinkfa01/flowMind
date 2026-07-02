@@ -11,7 +11,7 @@ export default function PhysicsAI() {
           <Atom size={22} color="#ff9500" />
         </div>
         <div>
-          <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>物理AI研究</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>AI研究</h2>
           <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>投资笔记、行业动态、标的追踪</p>
         </div>
       </div>

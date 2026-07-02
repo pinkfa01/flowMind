@@ -14,7 +14,7 @@ const navItems = [
   { path: '/english', label: '英语', icon: BookOpen },
   { path: '/reading', label: '读书', icon: BookMarked },
   { path: '/journal', label: '日记', icon: CalendarDays },
-  { path: '/physics-ai', label: '物理AI', icon: Atom },
+  { path: '/physics-ai', label: 'AI研究', icon: Atom },
 ]
 
 function Sidebar() {
