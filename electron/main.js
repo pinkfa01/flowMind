@@ -62,7 +62,7 @@ function initDatabase() {
       );
       CREATE TABLE IF NOT EXISTS tracked_projects (
         id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, url TEXT DEFAULT '',
-        description TEXT DEFAULT '', last_update TEXT DEFAULT '', status TEXT DEFAULT 'active'
+        description TEXT DEFAULT '', last_update TEXT DEFAULT '', status TEXT DEFAULT 'watching'
       );
     `)
 
@@ -70,7 +70,13 @@ function initDatabase() {
     const cols = db.prepare("PRAGMA table_info(body_metrics)").all().map((c) => c.name)
     if (!cols.includes('hip_cm')) db.exec('ALTER TABLE body_metrics ADD COLUMN hip_cm REAL')
     if (!cols.includes('calf_cm')) db.exec('ALTER TABLE body_metrics ADD COLUMN calf_cm REAL')
-    if (!cols.includes('photo')) db.exec('ALTER TABLE body_metrics ADD COLUMN photo TEXT DEFAULT \'\'')
+    if (!cols.includes('photo')) db.exec("ALTER TABLE body_metrics ADD COLUMN photo TEXT DEFAULT ''")
+
+    // 迁移：给 tracked_projects 加投资相关字段
+    const pcols = db.prepare("PRAGMA table_info(tracked_projects)").all().map((c) => c.name)
+    if (!pcols.includes('ticker')) db.exec('ALTER TABLE tracked_projects ADD COLUMN ticker TEXT DEFAULT \'\'')
+    if (!pcols.includes('price')) db.exec('ALTER TABLE tracked_projects ADD COLUMN price REAL')
+    if (!pcols.includes('position')) db.exec("ALTER TABLE tracked_projects ADD COLUMN position TEXT DEFAULT ''")
     console.log('[FlowMind] Database initialized successfully')
   } catch (err) {
     console.error('[FlowMind] Database init failed:', err.message)

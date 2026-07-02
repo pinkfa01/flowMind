@@ -12,11 +12,11 @@ export default function PhysicsAI() {
         </div>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>物理AI研究</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>论文追踪、研究笔记、时间线</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>研究论文、投资笔记、行业动态、标的追踪</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['papers', '论文'], ['notes', '笔记'], ['timeline', '时间线'], ['projects', '项目']].map(([k, l]) => (
+        {[['papers', '论文'], ['notes', '投资笔记'], ['timeline', '行业动态'], ['projects', '标的追踪']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
@@ -201,8 +201,8 @@ function Timeline() {
     load()
   }
 
-  const catIcons: any = { paper: FileText, breakthrough: Lightbulb, conference: Atom, tool: FolderGit2, milestone: Clock }
-  const catColors: any = { paper: '#3b82f6', breakthrough: '#f59e0b', conference: '#8b5cf6', tool: '#10b981', milestone: '#ef4444' }
+  const catIcons: any = { paper: FileText, breakthrough: Lightbulb, funding: Atom, product: FolderGit2, market: Clock }
+  const catColors: any = { paper: '#3b82f6', breakthrough: '#f59e0b', funding: '#22c55e', product: '#8b5cf6', market: '#ef4444' }
 
   return (
     <div>
@@ -257,7 +257,7 @@ function TimelineModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
       <input style={input} placeholder="来源" value={f.source} onChange={e => setF({ ...f, source: e.target.value })} />
       <div style={{ display: 'flex', gap: 8 }}>
         <select style={input} value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>
-          <option value="paper">论文</option><option value="breakthrough">突破</option><option value="conference">会议</option><option value="tool">工具</option><option value="milestone">里程碑</option>
+          <option value="paper">论文</option><option value="breakthrough">技术突破</option><option value="funding">融资</option><option value="product">产品发布</option><option value="market">市场事件</option>
         </select>
         <select style={input} value={f.importance} onChange={e => setF({ ...f, importance: Number(e.target.value) })}>
           {[1,2,3,4,5].map(n => <option key={n} value={n}>{'★'.repeat(n)}</option>)}
@@ -284,30 +284,34 @@ function Projects() {
     load()
   }
 
-  const statusColors: any = { active: '#22c55e', inactive: '#94a3b8', completed: '#3b82f6', archived: '#6b7280' }
+  const statusColors: any = { watching: '#f59e0b', holding: '#22c55e', sold: '#94a3b8', passed: '#ef4444' }
+  const statusLabels: any = { watching: '观察中', holding: '持仓中', sold: '已卖出', passed: '放弃' }
+  const positionLabels: any = { long: '做多', short: '做空', none: '无' }
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{projects.length} 个项目</span>
-        <button onClick={() => setShowModal(true)} style={btnPrimary}><Plus size={14} /> 添加项目</button>
+        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{projects.length} 个标的</span>
+        <button onClick={() => setShowModal(true)} style={btnPrimary}><Plus size={14} /> 添加标的</button>
       </div>
-      {projects.length === 0 ? <EmptyState icon={FolderGit2} text="暂无追踪项目" /> : (
+      {projects.length === 0 ? <EmptyState icon={FolderGit2} text="暂无追踪标的" /> : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {projects.map(p => (
             <div key={p.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <FolderGit2 size={16} color="var(--text2)" />
-                <span style={{ fontWeight: 600, fontSize: 14, marginLeft: 8 }}>{p.name}</span>
-                <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 4, background: (statusColors[p.status] || '#94a3b8') + '20', color: statusColors[p.status] || '#94a3b8', fontSize: 11 }}>{p.status}</span>
+                <span style={{ fontWeight: 600, fontSize: 14 }}>{p.name}</span>
+                {p.ticker && <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 4, background: 'var(--bg)', fontSize: 12, color: 'var(--text2)', fontFamily: 'monospace' }}>{p.ticker}</span>}
+                <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 4, background: (statusColors[p.status] || '#94a3b8') + '20', color: statusColors[p.status] || '#94a3b8', fontSize: 11 }}>{statusLabels[p.status] || p.status}</span>
                 <div style={{ flex: 1 }} />
                 <button onClick={() => del(p.id)} style={iconBtn}><Trash2 size={14} /></button>
               </div>
               {p.description && <p style={{ color: 'var(--text2)', fontSize: 13, margin: '4px 0' }}>{p.description}</p>}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {p.url && <a href={p.url} target="_blank" style={{ color: 'var(--accent)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 2 }}><ExternalLink size={12} /> {p.url}</a>}
+              <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 13 }}>
+                {p.price != null && <span><span style={{ color: 'var(--text3)' }}>价格 </span><span style={{ fontWeight: 600 }}>${p.price}</span></span>}
+                {p.position && p.position !== 'none' && <span><span style={{ color: 'var(--text3)' }}>方向 </span><span style={{ fontWeight: 600, color: p.position === 'long' ? '#22c55e' : '#ef4444' }}>{positionLabels[p.position] || p.position}</span></span>}
                 {p.last_update && <span style={{ color: 'var(--text3)', fontSize: 11 }}>{p.last_update}</span>}
               </div>
+              {p.url && <a href={p.url} target="_blank" style={{ color: 'var(--accent)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 2, marginTop: 4 }}><ExternalLink size={12} /> {p.url}</a>}
             </div>
           ))}
         </div>
@@ -318,24 +322,58 @@ function Projects() {
 }
 
 function ProjectModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
-  const [f, setF] = useState({ name: '', url: '', description: '', last_update: new Date().toISOString().slice(0, 10), status: 'active' })
+  const [f, setF] = useState({ name: '', ticker: '', url: '', description: '', price: '', position: 'none', last_update: new Date().toISOString().slice(0, 10), status: 'watching' })
   async function save() {
     if (!f.name.trim()) return
-    await dbRun('INSERT INTO tracked_projects (name, url, description, last_update, status) VALUES (?,?,?,?,?)', [f.name, f.url, f.description, f.last_update, f.status])
+    await dbRun('INSERT INTO tracked_projects (name, ticker, url, description, price, position, last_update, status) VALUES (?,?,?,?,?,?,?,?)',
+      [f.name, f.ticker, f.url, f.description, f.price ? Number(f.price) : null, f.position, f.last_update, f.status])
     onSaved()
   }
   return (
-    <Modal onClose={onClose} title="添加项目">
-      <input style={input} placeholder="名称" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
-      <input style={input} placeholder="URL" value={f.url} onChange={e => setF({ ...f, url: e.target.value })} />
-      <textarea style={{ ...input, resize: 'none' }} rows={2} placeholder="描述" value={f.description} onChange={e => setF({ ...f, description: e.target.value })} />
+    <Modal onClose={onClose} title="添加标的">
       <div style={{ display: 'flex', gap: 8 }}>
-        <input style={input} type="date" value={f.last_update} onChange={e => setF({ ...f, last_update: e.target.value })} />
-        <select style={input} value={f.status} onChange={e => setF({ ...f, status: e.target.value })}>
-          <option value="active">活跃</option><option value="inactive">不活跃</option><option value="completed">已完成</option><option value="archived">已归档</option>
-        </select>
+        <div style={{ flex: 2 }}>
+          <label style={labelStyle}>名称</label>
+          <input style={{ ...input, marginBottom: 0 }} placeholder="如：NVIDIA、IonQ、D-Wave" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>代码/Ticker</label>
+          <input style={{ ...input, marginBottom: 0, fontFamily: 'monospace' }} placeholder="NVDA" value={f.ticker} onChange={e => setF({ ...f, ticker: e.target.value.toUpperCase() })} />
+        </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>当前价格($)</label>
+          <input style={{ ...input, marginBottom: 0 }} type="number" step="0.01" placeholder="-" value={f.price} onChange={e => setF({ ...f, price: e.target.value })} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>持仓方向</label>
+          <select style={{ ...input, marginBottom: 0 }} value={f.position} onChange={e => setF({ ...f, position: e.target.value })}>
+            <option value="none">无</option><option value="long">做多</option><option value="short">做空</option>
+          </select>
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>状态</label>
+          <select style={{ ...input, marginBottom: 0 }} value={f.status} onChange={e => setF({ ...f, status: e.target.value })}>
+            <option value="watching">观察中</option><option value="holding">持仓中</option><option value="sold">已卖出</option><option value="passed">放弃</option>
+          </select>
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>更新日期</label>
+          <input style={{ ...input, marginBottom: 0 }} type="date" value={f.last_update} onChange={e => setF({ ...f, last_update: e.target.value })} />
+        </div>
+      </div>
+      <div>
+        <label style={labelStyle}>研究链接</label>
+        <input style={{ ...input, marginBottom: 0 }} placeholder="https://..." value={f.url} onChange={e => setF({ ...f, url: e.target.value })} />
+      </div>
+      <div>
+        <label style={labelStyle}>投资逻辑/备注</label>
+        <textarea style={{ ...input, resize: 'vertical', minHeight: 80, marginBottom: 0 }} rows={4} placeholder="为什么看好/看空？关键催化剂？" value={f.description} onChange={e => setF({ ...f, description: e.target.value })} />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
         <button onClick={onClose} style={btnSecondary}>取消</button>
         <button onClick={save} style={btnPrimary}>保存</button>
       </div>
@@ -348,6 +386,7 @@ const btnPrimary = { display: 'inline-flex', alignItems: 'center', gap: 4, paddi
 const btnSecondary = { padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, cursor: 'pointer' } as React.CSSProperties
 const iconBtn = { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4, display: 'flex', alignItems: 'center' } as React.CSSProperties
 const input = { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 13, marginBottom: 8 } as React.CSSProperties
+const labelStyle = { fontSize: 12, fontWeight: 500, marginBottom: 4, display: 'block', color: 'var(--text2)' } as React.CSSProperties
 
 function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
