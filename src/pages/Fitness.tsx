@@ -13,12 +13,12 @@ export default function Fitness() {
           <Dumbbell size={22} color="#4c6ef5" />
         </div>
         <div>
-          <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>健身记录</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>训练日志、身体数据与进度追踪</p>
+          <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Fitness</h2>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>Workout logs & body metrics</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['log', '训练日志'], ['metrics', '身体数据']].map(([k, l]) => (
+        {[['log', 'Workout Log'], ['metrics', 'Body Metrics']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
@@ -49,7 +49,7 @@ function WorkoutLog() {
   useEffect(() => { load() }, [])
 
   async function del(id: number) {
-    if (!confirm('确定删除？')) return
+    if (!confirm('Delete this workout?')) return
     await dbRun('DELETE FROM workout_sets WHERE workout_id = ?', [id])
     await dbRun('DELETE FROM workouts WHERE id = ?', [id])
     load()
@@ -58,11 +58,11 @@ function WorkoutLog() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{workouts.length} 条记录</span>
-        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> 新建训练</button>
+        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{workouts.length} records</span>
+        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> New Workout</button>
       </div>
       {workouts.length === 0 ? (
-        <EmptyState icon={Dumbbell} text="暂无训练记录" />
+        <EmptyState icon={Dumbbell} text="No workouts yet" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {workouts.map(w => (
@@ -72,7 +72,7 @@ function WorkoutLog() {
                 <span style={{ flex: 1, marginLeft: 8, fontWeight: 500 }}>{w.name}</span>
                 <span style={{ color: 'var(--text3)', fontSize: 13 }}>{w.date}</span>
                 {w.duration_min > 0 && <span style={{ color: 'var(--text3)', fontSize: 13, marginLeft: 12 }}>{w.duration_min}min</span>}
-                <span style={{ color: 'var(--text3)', fontSize: 13, marginLeft: 12 }}>{w.sets?.length || 0} 组</span>
+                <span style={{ color: 'var(--text3)', fontSize: 13, marginLeft: 12 }}>{w.sets?.length || 0} sets</span>
                 <button onClick={(e) => { e.stopPropagation(); setEditing(w); setShowModal(true) }} style={iconBtn}><Edit3 size={14} /></button>
                 <button onClick={(e) => { e.stopPropagation(); del(w.id) }} style={iconBtn}><Trash2 size={14} /></button>
               </div>
@@ -80,7 +80,7 @@ function WorkoutLog() {
                 <div style={{ padding: '0 16px 12px 40px' }}>
                   <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
                     <thead><tr style={{ color: 'var(--text3)' }}>
-                      <th style={th}>动作</th><th style={th}>组</th><th style={th}>次数</th><th style={th}>重量kg</th>
+                      <th style={th}>Exercise</th><th style={th}>Set</th><th style={th}>Reps</th><th style={th}>Weight kg</th>
                     </tr></thead>
                     <tbody>
                       {w.sets.map((s: any) => (
@@ -124,49 +124,48 @@ function WorkoutModal({ workout, onClose, onSaved }: { workout: Workout | null; 
   }
 
   return (
-    <Modal onClose={onClose} title={workout ? '编辑训练' : '新建训练'}>
+    <Modal onClose={onClose} title={workout ? 'Edit Workout' : 'New Workout'}>
       <div>
-        <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>训练名称</label>
-        <input style={input} placeholder="如：推日、拉日、腿日" value={name} onChange={e => setName(e.target.value)} />
+        <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>Workout Name</label>
+        <input style={input} placeholder="e.g. Push Day, Pull Day, Leg Day" value={name} onChange={e => setName(e.target.value)} />
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}>
-          <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>日期</label>
+          <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>Date</label>
           <input style={input} type="date" value={date} onChange={e => setDate(e.target.value)} />
         </div>
         <div style={{ flex: 1 }}>
-          <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>时长（分钟）</label>
+          <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>Duration (min)</label>
           <input style={input} type="number" placeholder="60" value={duration || ''} onChange={e => setDuration(Number(e.target.value) || 0)} />
         </div>
       </div>
       <div>
-        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>训练组</div>
-        {/* 表头 */}
+        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Sets</div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 4, fontSize: 11, color: 'var(--text3)', fontWeight: 500 }}>
-          <div style={{ flex: 2 }}>动作名称</div>
-          <div style={{ flex: 1, textAlign: 'center' }}>第几组</div>
-          <div style={{ flex: 1, textAlign: 'center' }}>次数</div>
-          <div style={{ flex: 1, textAlign: 'center' }}>重量(kg)</div>
+          <div style={{ flex: 2 }}>Exercise</div>
+          <div style={{ flex: 1, textAlign: 'center' }}>Set #</div>
+          <div style={{ flex: 1, textAlign: 'center' }}>Reps</div>
+          <div style={{ flex: 1, textAlign: 'center' }}>Weight (kg)</div>
           <div style={{ width: 28 }} />
         </div>
         {sets.map((s, i) => (
           <div key={i} style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-            <input style={{ ...input, flex: 2, marginBottom: 0 }} placeholder="如：卧推、深蹲、硬拉" value={s.exercise} onChange={e => { const n = [...sets]; n[i].exercise = e.target.value; setSets(n) }} />
+            <input style={{ ...input, flex: 2, marginBottom: 0 }} placeholder="e.g. Bench Press, Squat, Deadlift" value={s.exercise} onChange={e => { const n = [...sets]; n[i].exercise = e.target.value; setSets(n) }} />
             <input style={{ ...input, flex: 1, marginBottom: 0, textAlign: 'center' }} type="number" placeholder="1" value={s.set_number} onChange={e => { const n = [...sets]; n[i].set_number = Number(e.target.value); setSets(n) }} />
             <input style={{ ...input, flex: 1, marginBottom: 0, textAlign: 'center' }} type="number" placeholder="10" value={s.reps} onChange={e => { const n = [...sets]; n[i].reps = Number(e.target.value); setSets(n) }} />
             <input style={{ ...input, flex: 1, marginBottom: 0, textAlign: 'center' }} type="number" placeholder="60" value={s.weight_kg} onChange={e => { const n = [...sets]; n[i].weight_kg = Number(e.target.value); setSets(n) }} />
             <button onClick={() => setSets(sets.filter((_, j) => j !== i))} style={iconBtn}><Trash2 size={14} /></button>
           </div>
         ))}
-        <button onClick={() => setSets([...sets, { exercise: '', set_number: sets.length + 1, reps: 10, weight_kg: 0 }])} style={{ ...btnPrimary, marginTop: 4 }}><Plus size={14} /> 添加组</button>
+        <button onClick={() => setSets([...sets, { exercise: '', set_number: sets.length + 1, reps: 10, weight_kg: 0 }])} style={{ ...btnPrimary, marginTop: 4 }}><Plus size={14} /> Add Set</button>
       </div>
       <div>
-        <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>备注（可选）</label>
-        <textarea style={{ ...input, resize: 'none' }} rows={2} placeholder="今天状态如何？有什么感受？" value={notes} onChange={e => setNotes(e.target.value)} />
+        <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>Notes (optional)</label>
+        <textarea style={{ ...input, resize: 'none' }} rows={2} placeholder="How did it feel?" value={notes} onChange={e => setNotes(e.target.value)} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-        <button onClick={onClose} style={btnSecondary}>取消</button>
-        <button onClick={save} style={btnPrimary}>保存</button>
+        <button onClick={onClose} style={btnSecondary}>Cancel</button>
+        <button onClick={save} style={btnPrimary}>Save</button>
       </div>
     </Modal>
   )
@@ -180,27 +179,27 @@ function BodyMetrics() {
   useEffect(() => { load() }, [])
 
   async function del(id: number) {
-    if (!confirm('确定删除？')) return
+    if (!confirm('Delete this record?')) return
     await dbRun('DELETE FROM body_metrics WHERE id = ?', [id])
     load()
   }
 
-  const fields = [['weight_kg', '体重kg'], ['body_fat_pct', '体脂%'], ['chest_cm', '胸围cm'], ['waist_cm', '腰围cm'], ['hip_cm', '臀围cm'], ['arm_cm', '臂围cm'], ['thigh_cm', '大腿围cm'], ['calf_cm', '小腿围cm']]
+  const fields = [['weight_kg', 'Weight kg'], ['body_fat_pct', 'Body Fat %'], ['chest_cm', 'Chest cm'], ['waist_cm', 'Waist cm'], ['hip_cm', 'Hip cm'], ['arm_cm', 'Arm cm'], ['thigh_cm', 'Thigh cm'], ['calf_cm', 'Calf cm']]
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{metrics.length} 条记录</span>
-        <button onClick={() => setShowModal(true)} style={btnPrimary}><Plus size={14} /> 记录数据</button>
+        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{metrics.length} records</span>
+        <button onClick={() => setShowModal(true)} style={btnPrimary}><Plus size={14} /> Log Data</button>
       </div>
-      {metrics.length === 0 ? <EmptyState icon={Dumbbell} text="暂无身体数据" /> : (
+      {metrics.length === 0 ? <EmptyState icon={Dumbbell} text="No body metrics yet" /> : (
         <div style={{ overflowX: 'auto', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}>
           <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
             <thead><tr style={{ background: 'var(--bg)' }}>
-              <th style={th}>日期</th>
+              <th style={th}>Date</th>
               {fields.map(([k, l]) => <th key={k} style={th}>{l}</th>)}
-              <th style={th}>照片</th>
-              <th style={th}>操作</th>
+              <th style={th}>Photo</th>
+              <th style={th}>Action</th>
             </tr></thead>
             <tbody>
               {metrics.map(m => (
@@ -225,9 +224,9 @@ function MetricModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =>
   const [vals, setVals] = useState<Record<string, string>>({})
   const [photo, setPhoto] = useState('')
   const fields = [
-    ['weight_kg', '体重(kg)'], ['body_fat_pct', '体脂率(%)'],
-    ['chest_cm', '胸围(cm)'], ['waist_cm', '腰围(cm)'], ['hip_cm', '臀围(cm)'],
-    ['arm_cm', '臂围(cm)'], ['thigh_cm', '大腿围(cm)'], ['calf_cm', '小腿围(cm)']
+    ['weight_kg', 'Weight (kg)'], ['body_fat_pct', 'Body Fat (%)'],
+    ['chest_cm', 'Chest (cm)'], ['waist_cm', 'Waist (cm)'], ['hip_cm', 'Hip (cm)'],
+    ['arm_cm', 'Arm (cm)'], ['thigh_cm', 'Thigh (cm)'], ['calf_cm', 'Calf (cm)']
   ]
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -245,9 +244,9 @@ function MetricModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =>
   }
 
   return (
-    <Modal onClose={onClose} title="记录身体数据">
+    <Modal onClose={onClose} title="Log Body Metrics">
       <div>
-        <label style={labelStyle}>日期</label>
+        <label style={labelStyle}>Date</label>
         <input style={input} type="date" value={date} onChange={e => setDate(e.target.value)} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -259,19 +258,19 @@ function MetricModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =>
         ))}
       </div>
       <div>
-        <label style={labelStyle}>体态照片（可选）</label>
+        <label style={labelStyle}>Photo (optional)</label>
         <input type="file" accept="image/*" onChange={handlePhoto} style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 8 }} />
         {photo && <img src={photo} style={{ width: '100%', maxHeight: 200, borderRadius: 8, objectFit: 'cover' }} />}
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-        <button onClick={onClose} style={btnSecondary}>取消</button>
-        <button onClick={save} style={btnPrimary}>保存</button>
+        <button onClick={onClose} style={btnSecondary}>Cancel</button>
+        <button onClick={save} style={btnPrimary}>Save</button>
       </div>
     </Modal>
   )
 }
 
-// ── 通用组件 ──
+// ── Shared ──
 const btnPrimary = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--accent)', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer' } as React.CSSProperties
 const btnSecondary = { padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, cursor: 'pointer' } as React.CSSProperties
 const iconBtn = { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4, display: 'flex', alignItems: 'center' } as React.CSSProperties

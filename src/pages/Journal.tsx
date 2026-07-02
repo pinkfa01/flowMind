@@ -11,12 +11,12 @@ export default function Journal() {
   useEffect(() => { load() }, [])
 
   async function del(id: number) {
-    if (!confirm('确定删除？')) return
+    if (!confirm('Delete this entry?')) return
     await dbRun('DELETE FROM journal_entries WHERE id = ?', [id])
     load()
   }
 
-  const moodIcons: any = { great: { icon: Smile, color: '#22c55e', label: '😊 很好' }, good: { icon: Smile, color: '#3b82f6', label: '🙂 不错' }, ok: { icon: Meh, color: '#f59e0b', label: '😐 一般' }, bad: { icon: Frown, color: '#ef4444', label: '😕 不好' }, awful: { icon: Frown, color: '#991b1b', label: '😢 糟糕' } }
+  const moodIcons: any = { great: { icon: Smile, color: '#22c55e', label: '😊 Great' }, good: { icon: Smile, color: '#3b82f6', label: '🙂 Good' }, ok: { icon: Meh, color: '#f59e0b', label: '😐 OK' }, bad: { icon: Frown, color: '#ef4444', label: '😕 Bad' }, awful: { icon: Frown, color: '#991b1b', label: '😢 Awful' } }
 
   return (
     <div>
@@ -25,15 +25,15 @@ export default function Journal() {
           <CalendarDays size={22} color="#ec4899" />
         </div>
         <div>
-          <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>日记</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>记录每天的心情与想法</p>
+          <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Journal</h2>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>Daily mood & thoughts</p>
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{entries.length} 篇日记</span>
-        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> 写日记</button>
+        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{entries.length} entries</span>
+        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> New Entry</button>
       </div>
-      {entries.length === 0 ? <EmptyState icon={CalendarDays} text="暂无日记，开始记录今天吧" /> : (
+      {entries.length === 0 ? <EmptyState icon={CalendarDays} text="No entries yet. Start writing today!" /> : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {entries.map(e => {
             const m = moodIcons[e.mood] || moodIcons.ok
@@ -75,23 +75,23 @@ function JournalModal({ entry, onClose, onSaved }: { entry: any; onClose: () => 
   }
 
   const moods = [
-    { key: 'great', label: '😊 很好', color: '#22c55e' },
-    { key: 'good', label: '🙂 不错', color: '#3b82f6' },
-    { key: 'ok', label: '😐 一般', color: '#f59e0b' },
-    { key: 'bad', label: '😕 不好', color: '#ef4444' },
-    { key: 'awful', label: '😢 糟糕', color: '#991b1b' },
+    { key: 'great', label: '😊 Great', color: '#22c55e' },
+    { key: 'good', label: '🙂 Good', color: '#3b82f6' },
+    { key: 'ok', label: '😐 OK', color: '#f59e0b' },
+    { key: 'bad', label: '😕 Bad', color: '#ef4444' },
+    { key: 'awful', label: '😢 Awful', color: '#991b1b' },
   ]
 
   return (
-    <Modal onClose={onClose} title={entry ? '编辑日记' : '写日记'}>
+    <Modal onClose={onClose} title={entry ? 'Edit Entry' : 'New Entry'}>
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}>
-          <label style={labelStyle}>日期</label>
+          <label style={labelStyle}>Date</label>
           <input style={{ ...input, marginBottom: 0 }} type="date" value={date} onChange={e => setDate(e.target.value)} />
         </div>
       </div>
       <div>
-        <label style={labelStyle}>心情</label>
+        <label style={labelStyle}>Mood</label>
         <div style={{ display: 'flex', gap: 4 }}>
           {moods.map(m => (
             <button key={m.key} onClick={() => setMood(m.key)} style={{
@@ -103,22 +103,22 @@ function JournalModal({ entry, onClose, onSaved }: { entry: any; onClose: () => 
         </div>
       </div>
       <div>
-        <label style={labelStyle}>标题（可选）</label>
-        <input style={{ ...input, marginBottom: 0 }} placeholder="今天的一句标题" value={title} onChange={e => setTitle(e.target.value)} />
+        <label style={labelStyle}>Title (optional)</label>
+        <input style={{ ...input, marginBottom: 0 }} placeholder="A title for today" value={title} onChange={e => setTitle(e.target.value)} />
       </div>
       <div>
-        <label style={labelStyle}>正文</label>
-        <textarea style={{ ...input, resize: 'vertical', minHeight: 200, marginBottom: 0 }} rows={10} placeholder="今天发生了什么？有什么想法和感受？" value={content} onChange={e => setContent(e.target.value)} />
+        <label style={labelStyle}>Content</label>
+        <textarea style={{ ...input, resize: 'vertical', minHeight: 200, marginBottom: 0 }} rows={10} placeholder="What happened today? Any thoughts or feelings?" value={content} onChange={e => setContent(e.target.value)} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-        <button onClick={onClose} style={btnSecondary}>取消</button>
-        <button onClick={save} style={btnPrimary}>保存</button>
+        <button onClick={onClose} style={btnSecondary}>Cancel</button>
+        <button onClick={save} style={btnPrimary}>Save</button>
       </div>
     </Modal>
   )
 }
 
-// ── 通用 ──
+// ── Shared ──
 const btnPrimary = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--accent)', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer' } as React.CSSProperties
 const btnSecondary = { padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, cursor: 'pointer' } as React.CSSProperties
 const iconBtn = { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4, display: 'flex', alignItems: 'center' } as React.CSSProperties

@@ -9,12 +9,12 @@ import Reading from './pages/Reading'
 import Journal from './pages/Journal'
 
 const navItems = [
-  { path: '/', label: '仪表盘', icon: LayoutDashboard },
-  { path: '/fitness', label: '健身', icon: Dumbbell },
-  { path: '/english', label: '英语', icon: BookOpen },
-  { path: '/reading', label: '读书', icon: BookMarked },
-  { path: '/journal', label: '日记', icon: CalendarDays },
-  { path: '/physics-ai', label: 'AI研究', icon: Atom },
+  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/fitness', label: 'Fitness', icon: Dumbbell },
+  { path: '/english', label: 'English', icon: BookOpen },
+  { path: '/reading', label: 'Reading', icon: BookMarked },
+  { path: '/journal', label: 'Journal', icon: CalendarDays },
+  { path: '/physics-ai', label: 'AI Research', icon: Atom },
 ]
 
 function Sidebar() {
