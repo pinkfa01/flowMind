@@ -218,15 +218,15 @@ function ReadingList() {
 
   const statusColors: any = { reading: '#3b82f6', completed: '#22c55e', archived: '#94a3b8' }
   const statusLabels: any = { reading: '在读', completed: '已完成', archived: '已归档' }
-  const typeLabels: any = { article: '文章', book: '书籍', news: '新闻', paper: '论文' }
+  const typeLabels: any = { book: '书', audiobook: '有声书', ebook: '电子书' }
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{items.length} 篇阅读材料</span>
+        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{items.length} 本书</span>
         <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> 添加</button>
       </div>
-      {items.length === 0 ? <EmptyState icon={BookOpen} text="暂无阅读材料" /> : (
+      {items.length === 0 ? <EmptyState icon={BookOpen} text="暂无读书记录" /> : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {items.map(m => (
             <div key={m.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
@@ -237,7 +237,7 @@ function ReadingList() {
                 <button onClick={() => { setEditing(m); setShowModal(true) }} style={iconBtn}><Edit3 size={14} /></button>
                 <button onClick={() => del(m.id)} style={iconBtn}><Trash2 size={14} /></button>
               </div>
-              {m.source_url && <a href={m.source_url} target="_blank" style={{ color: 'var(--accent)', fontSize: 12, display: 'block', marginTop: 2 }}>{m.source_url}</a>}
+              {m.source_url && <a href={m.source_url} target="_blank" style={{ color: 'var(--accent)', fontSize: 12, display: 'block', marginTop: 2 }}>详情链接</a>}
               {m.notes && <p style={{ color: 'var(--text2)', fontSize: 13, margin: '4px 0 0' }}>{m.notes}</p>}
               {m.status === 'reading' && (
                 <div style={{ marginTop: 8 }}>
@@ -260,7 +260,7 @@ function ReadingList() {
 
 function ReadingListModal({ item, onClose, onSaved }: { item: any; onClose: () => void; onSaved: () => void }) {
   const [f, setF] = useState(item ? { title: item.title, source_url: item.source_url, type: item.type, status: item.status, progress: item.progress, notes: item.notes }
-    : { title: '', source_url: '', type: 'article', status: 'reading', progress: 0, notes: '' })
+    : { title: '', source_url: '', type: 'book', status: 'reading', progress: 0, notes: '' })
 
   async function save() {
     if (!f.title.trim()) return
@@ -273,20 +273,20 @@ function ReadingListModal({ item, onClose, onSaved }: { item: any; onClose: () =
   }
 
   return (
-    <Modal onClose={onClose} title={item ? '编辑阅读材料' : '添加阅读材料'}>
+    <Modal onClose={onClose} title={item ? '编辑书籍' : '添加书籍'}>
       <div>
-        <label style={labelStyle}>标题</label>
-        <input style={{ ...input, marginBottom: 0 }} placeholder="文章/书籍标题" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
+        <label style={labelStyle}>书名</label>
+        <input style={{ ...input, marginBottom: 0 }} placeholder="书名" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
       </div>
       <div>
-        <label style={labelStyle}>来源链接</label>
+        <label style={labelStyle}>链接（可选）</label>
         <input style={{ ...input, marginBottom: 0 }} placeholder="https://..." value={f.source_url} onChange={e => setF({ ...f, source_url: e.target.value })} />
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}>
           <label style={labelStyle}>类型</label>
           <select style={{ ...input, marginBottom: 0 }} value={f.type} onChange={e => setF({ ...f, type: e.target.value })}>
-            <option value="article">文章</option><option value="book">书籍</option><option value="news">新闻</option><option value="paper">论文</option>
+            <option value="book">书</option><option value="ebook">电子书</option><option value="audiobook">有声书</option>
           </select>
         </div>
         <div style={{ flex: 1 }}>
@@ -303,8 +303,8 @@ function ReadingListModal({ item, onClose, onSaved }: { item: any; onClose: () =
         </div>
       )}
       <div>
-        <label style={labelStyle}>备注</label>
-        <textarea style={{ ...input, resize: 'vertical', minHeight: 60, marginBottom: 0 }} rows={3} placeholder="生词、要点、感想..." value={f.notes} onChange={e => setF({ ...f, notes: e.target.value })} />
+        <label style={labelStyle}>读书笔记</label>
+        <textarea style={{ ...input, resize: 'vertical', minHeight: 60, marginBottom: 0 }} rows={3} placeholder="摘录、生词、感想..." value={f.notes} onChange={e => setF({ ...f, notes: e.target.value })} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
         <button onClick={onClose} style={btnSecondary}>取消</button>
