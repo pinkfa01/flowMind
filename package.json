@@ -44,6 +44,7 @@
     "productName": "FlowMind",
     "mac": {
       "category": "public.app-category.productivity",
+      "icon": "build/icon.png",
       "target": [
         { "target": "dmg", "arch": ["x64", "arm64"] }
       ]
