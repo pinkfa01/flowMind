@@ -8,6 +8,9 @@
     "build": "vite build",
     "start": "vite build && electron .",
     "dist": "vite build && electron-builder",
+    "dist:arm": "vite build && electron-builder --arm64",
+    "dist:intel": "vite build && electron-builder --x64",
+    "dist:universal": "vite build && electron-builder --universal",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "postinstall": "electron-rebuild -f -w better-sqlite3"
   },
@@ -41,7 +44,9 @@
     "productName": "FlowMind",
     "mac": {
       "category": "public.app-category.productivity",
-      "target": ["dmg"]
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ]
     },
     "files": ["dist/**/*", "electron/**/*"],
     "directories": { "output": "release" }
