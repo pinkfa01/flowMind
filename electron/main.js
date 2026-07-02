@@ -24,7 +24,8 @@ function initDatabase() {
       );
       CREATE TABLE IF NOT EXISTS body_metrics (
         id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, weight_kg REAL, body_fat_pct REAL,
-        chest_cm REAL, waist_cm REAL, arm_cm REAL, thigh_cm REAL, notes TEXT DEFAULT ''
+        chest_cm REAL, waist_cm REAL, arm_cm REAL, thigh_cm REAL, hip_cm REAL, calf_cm REAL,
+        photo TEXT DEFAULT '', notes TEXT DEFAULT ''
       );
       CREATE TABLE IF NOT EXISTS workout_templates (
         id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, category TEXT DEFAULT 'custom',
@@ -64,6 +65,12 @@ function initDatabase() {
         description TEXT DEFAULT '', last_update TEXT DEFAULT '', status TEXT DEFAULT 'active'
       );
     `)
+
+    // 迁移：给 body_metrics 加新字段（兼容旧数据库）
+    const cols = db.prepare("PRAGMA table_info(body_metrics)").all().map((c: any) => c.name)
+    if (!cols.includes('hip_cm')) db.exec('ALTER TABLE body_metrics ADD COLUMN hip_cm REAL')
+    if (!cols.includes('calf_cm')) db.exec('ALTER TABLE body_metrics ADD COLUMN calf_cm REAL')
+    if (!cols.includes('photo')) db.exec('ALTER TABLE body_metrics ADD COLUMN photo TEXT DEFAULT \'\'')
     console.log('[FlowMind] Database initialized successfully')
   } catch (err) {
     console.error('[FlowMind] Database init failed:', err.message)

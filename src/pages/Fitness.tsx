@@ -186,7 +186,7 @@ function BodyMetrics() {
     load()
   }
 
-  const fields = [['weight_kg', '体重kg'], ['body_fat_pct', '体脂%'], ['chest_cm', '胸围cm'], ['waist_cm', '腰围cm'], ['arm_cm', '臂围cm'], ['thigh_cm', '腿围cm']]
+  const fields = [['weight_kg', '体重kg'], ['body_fat_pct', '体脂%'], ['chest_cm', '胸围cm'], ['waist_cm', '腰围cm'], ['hip_cm', '臀围cm'], ['arm_cm', '臂围cm'], ['thigh_cm', '大腿围cm'], ['calf_cm', '小腿围cm']]
 
   return (
     <div>
@@ -200,6 +200,7 @@ function BodyMetrics() {
             <thead><tr style={{ background: 'var(--bg)' }}>
               <th style={th}>日期</th>
               {fields.map(([k, l]) => <th key={k} style={th}>{l}</th>)}
+              <th style={th}>照片</th>
               <th style={th}>操作</th>
             </tr></thead>
             <tbody>
@@ -207,6 +208,7 @@ function BodyMetrics() {
                 <tr key={m.id} style={{ borderTop: '1px solid var(--border)' }}>
                   <td style={td}>{m.date}</td>
                   {fields.map(([k]) => <td key={k} style={td}>{m[k] != null ? m[k] : '-'}</td>)}
+                  <td style={td}>{m.photo ? <img src={m.photo} style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover' }} /> : '-'}</td>
                   <td style={td}><button onClick={() => del(m.id)} style={iconBtn}><Trash2 size={14} /></button></td>
                 </tr>
               ))}
@@ -222,19 +224,45 @@ function BodyMetrics() {
 function MetricModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
   const [vals, setVals] = useState<Record<string, string>>({})
-  const fields = ['weight_kg', 'body_fat_pct', 'chest_cm', 'waist_cm', 'arm_cm', 'thigh_cm']
+  const [photo, setPhoto] = useState('')
+  const fields = [
+    ['weight_kg', '体重(kg)'], ['body_fat_pct', '体脂率(%)'],
+    ['chest_cm', '胸围(cm)'], ['waist_cm', '腰围(cm)'], ['hip_cm', '臀围(cm)'],
+    ['arm_cm', '臂围(cm)'], ['thigh_cm', '大腿围(cm)'], ['calf_cm', '小腿围(cm)']
+  ]
+
+  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setPhoto(reader.result as string)
+    reader.readAsDataURL(file)
+  }
 
   async function save() {
-    const params = [date, ...fields.map(f => vals[f] ? Number(vals[f]) : null)]
-    await dbRun('INSERT INTO body_metrics (date, weight_kg, body_fat_pct, chest_cm, waist_cm, arm_cm, thigh_cm) VALUES (?,?,?,?,?,?,?)', params)
+    const params = [date, ...fields.map(([k]) => vals[k] ? Number(vals[k]) : null), photo]
+    await dbRun('INSERT INTO body_metrics (date, weight_kg, body_fat_pct, chest_cm, waist_cm, arm_cm, thigh_cm, hip_cm, calf_cm, photo) VALUES (?,?,?,?,?,?,?,?,?,?)', params)
     onSaved()
   }
 
   return (
     <Modal onClose={onClose} title="记录身体数据">
-      <input style={input} type="date" value={date} onChange={e => setDate(e.target.value)} />
+      <div>
+        <label style={labelStyle}>日期</label>
+        <input style={input} type="date" value={date} onChange={e => setDate(e.target.value)} />
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        {fields.map(f => <input key={f} style={input} type="number" step="0.1" placeholder={f} value={vals[f] || ''} onChange={e => setVals({ ...vals, [f]: e.target.value })} />)}
+        {fields.map(([k, l]) => (
+          <div key={k}>
+            <label style={labelStyle}>{l}</label>
+            <input style={{ ...input, marginBottom: 0 }} type="number" step="0.1" placeholder="-" value={vals[k] || ''} onChange={e => setVals({ ...vals, [k]: e.target.value })} />
+          </div>
+        ))}
+      </div>
+      <div>
+        <label style={labelStyle}>体态照片（可选）</label>
+        <input type="file" accept="image/*" onChange={handlePhoto} style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 8 }} />
+        {photo && <img src={photo} style={{ width: '100%', maxHeight: 200, borderRadius: 8, objectFit: 'cover' }} />}
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button onClick={onClose} style={btnSecondary}>取消</button>
@@ -291,6 +319,7 @@ const btnPrimary = { display: 'inline-flex', alignItems: 'center', gap: 4, paddi
 const btnSecondary = { padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, cursor: 'pointer' } as React.CSSProperties
 const iconBtn = { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4, display: 'flex', alignItems: 'center' } as React.CSSProperties
 const input = { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 13, marginBottom: 8 } as React.CSSProperties
+const labelStyle = { fontSize: 12, fontWeight: 500, marginBottom: 4, display: 'block', color: 'var(--text2)' } as React.CSSProperties
 const th = { padding: '8px 12px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: 'var(--text2)' } as React.CSSProperties
 const td = { padding: '8px 12px', color: 'var(--text)' } as React.CSSProperties
 
