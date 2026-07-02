@@ -3,7 +3,7 @@ import { Plus, Trash2, Edit3, BookOpen, Star, CheckCircle } from 'lucide-react'
 import { dbQuery, dbRun } from '../lib/db'
 
 export default function English() {
-  const [tab, setTab] = useState<'words' | 'checkin' | 'reading'>('words')
+  const [tab, setTab] = useState<'words' | 'checkin' | 'reading' | 'notes'>('words')
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -12,11 +12,11 @@ export default function English() {
         </div>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>英语学习</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>单词本、每日打卡、阅读笔记</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>单词本、每日打卡、阅读、笔记</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['words', '单词本'], ['checkin', '每日打卡'], ['reading', '阅读笔记']].map(([k, l]) => (
+        {[['words', '单词本'], ['checkin', '每日打卡'], ['reading', '阅读'], ['notes', '笔记']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
@@ -25,7 +25,8 @@ export default function English() {
       </div>
       {tab === 'words' && <Words />}
       {tab === 'checkin' && <CheckIn />}
-      {tab === 'reading' && <Reading />}
+      {tab === 'reading' && <ReadingList />}
+      {tab === 'notes' && <Reading />}
     </div>
   )
 }
@@ -195,6 +196,124 @@ function CheckIn() {
   )
 }
 
+function ReadingList() {
+  const [items, setItems] = useState<any[]>([])
+  const [showModal, setShowModal] = useState(false)
+  const [editing, setEditing] = useState<any>(null)
+
+  async function load() { setItems(await dbQuery('SELECT * FROM reading_materials ORDER BY created_at DESC')) }
+  useEffect(() => { load() }, [])
+
+  async function del(id: number) {
+    if (!confirm('确定删除？')) return
+    await dbRun('DELETE FROM reading_materials WHERE id = ?', [id])
+    load()
+  }
+
+  async function cycleStatus(item: any) {
+    const next: any = { reading: 'completed', completed: 'archived', archived: 'reading' }
+    await dbRun('UPDATE reading_materials SET status = ? WHERE id = ?', [next[item.status], item.id])
+    load()
+  }
+
+  const statusColors: any = { reading: '#3b82f6', completed: '#22c55e', archived: '#94a3b8' }
+  const statusLabels: any = { reading: '在读', completed: '已完成', archived: '已归档' }
+  const typeLabels: any = { article: '文章', book: '书籍', news: '新闻', paper: '论文' }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{items.length} 篇阅读材料</span>
+        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> 添加</button>
+      </div>
+      {items.length === 0 ? <EmptyState icon={BookOpen} text="暂无阅读材料" /> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {items.map(m => (
+            <div key={m.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontWeight: 600, fontSize: 14, flex: 1 }}>{m.title}</span>
+                <span style={{ padding: '2px 8px', borderRadius: 4, background: 'var(--bg)', fontSize: 11, color: 'var(--text2)', marginRight: 8 }}>{typeLabels[m.type] || m.type}</span>
+                <button onClick={() => cycleStatus(m)} style={{ padding: '2px 10px', borderRadius: 4, border: 'none', background: (statusColors[m.status] || '#94a3b8') + '20', color: statusColors[m.status] || '#94a3b8', fontSize: 12, cursor: 'pointer', marginRight: 8 }}>{statusLabels[m.status] || m.status}</button>
+                <button onClick={() => { setEditing(m); setShowModal(true) }} style={iconBtn}><Edit3 size={14} /></button>
+                <button onClick={() => del(m.id)} style={iconBtn}><Trash2 size={14} /></button>
+              </div>
+              {m.source_url && <a href={m.source_url} target="_blank" style={{ color: 'var(--accent)', fontSize: 12, display: 'block', marginTop: 2 }}>{m.source_url}</a>}
+              {m.notes && <p style={{ color: 'var(--text2)', fontSize: 13, margin: '4px 0 0' }}>{m.notes}</p>}
+              {m.status === 'reading' && (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--bg)' }}>
+                      <div style={{ width: `${m.progress}%`, height: '100%', borderRadius: 3, background: 'var(--accent)' }} />
+                    </div>
+                    <span style={{ fontSize: 12, color: 'var(--text3)' }}>{m.progress}%</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {showModal && <ReadingListModal item={editing} onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); load() }} />}
+    </div>
+  )
+}
+
+function ReadingListModal({ item, onClose, onSaved }: { item: any; onClose: () => void; onSaved: () => void }) {
+  const [f, setF] = useState(item ? { title: item.title, source_url: item.source_url, type: item.type, status: item.status, progress: item.progress, notes: item.notes }
+    : { title: '', source_url: '', type: 'article', status: 'reading', progress: 0, notes: '' })
+
+  async function save() {
+    if (!f.title.trim()) return
+    if (item) {
+      await dbRun('UPDATE reading_materials SET title=?, source_url=?, type=?, status=?, progress=?, notes=? WHERE id=?', [f.title, f.source_url, f.type, f.status, f.progress, f.notes, item.id])
+    } else {
+      await dbRun('INSERT INTO reading_materials (title, source_url, type, status, progress, notes) VALUES (?,?,?,?,?,?)', [f.title, f.source_url, f.type, f.status, f.progress, f.notes])
+    }
+    onSaved()
+  }
+
+  return (
+    <Modal onClose={onClose} title={item ? '编辑阅读材料' : '添加阅读材料'}>
+      <div>
+        <label style={labelStyle}>标题</label>
+        <input style={{ ...input, marginBottom: 0 }} placeholder="文章/书籍标题" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
+      </div>
+      <div>
+        <label style={labelStyle}>来源链接</label>
+        <input style={{ ...input, marginBottom: 0 }} placeholder="https://..." value={f.source_url} onChange={e => setF({ ...f, source_url: e.target.value })} />
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>类型</label>
+          <select style={{ ...input, marginBottom: 0 }} value={f.type} onChange={e => setF({ ...f, type: e.target.value })}>
+            <option value="article">文章</option><option value="book">书籍</option><option value="news">新闻</option><option value="paper">论文</option>
+          </select>
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>状态</label>
+          <select style={{ ...input, marginBottom: 0 }} value={f.status} onChange={e => setF({ ...f, status: e.target.value })}>
+            <option value="reading">在读</option><option value="completed">已完成</option><option value="archived">已归档</option>
+          </select>
+        </div>
+      </div>
+      {f.status === 'reading' && (
+        <div>
+          <label style={labelStyle}>阅读进度: {f.progress}%</label>
+          <input type="range" min={0} max={100} value={f.progress} style={{ width: '100%' }} onChange={e => setF({ ...f, progress: Number(e.target.value) })} />
+        </div>
+      )}
+      <div>
+        <label style={labelStyle}>备注</label>
+        <textarea style={{ ...input, resize: 'vertical', minHeight: 60, marginBottom: 0 }} rows={3} placeholder="生词、要点、感想..." value={f.notes} onChange={e => setF({ ...f, notes: e.target.value })} />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+        <button onClick={onClose} style={btnSecondary}>取消</button>
+        <button onClick={save} style={btnPrimary}>保存</button>
+      </div>
+    </Modal>
+  )
+}
+
 function Reading() {
   const [notes, setNotes] = useState<any[]>([])
   const [showModal, setShowModal] = useState(false)
@@ -264,6 +383,7 @@ const btnPrimary = { display: 'inline-flex', alignItems: 'center', gap: 4, paddi
 const btnSecondary = { padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, cursor: 'pointer' } as React.CSSProperties
 const iconBtn = { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4, display: 'flex', alignItems: 'center' } as React.CSSProperties
 const input = { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 13, marginBottom: 8 } as React.CSSProperties
+const labelStyle = { fontSize: 12, fontWeight: 500, marginBottom: 4, display: 'block', color: 'var(--text2)' } as React.CSSProperties
 
 function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (

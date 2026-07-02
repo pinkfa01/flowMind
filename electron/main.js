@@ -44,6 +44,11 @@ function initDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, source_url TEXT DEFAULT '',
         content TEXT DEFAULT '', new_words_json TEXT DEFAULT '[]', created_at TEXT DEFAULT (datetime('now'))
       );
+      CREATE TABLE IF NOT EXISTS reading_materials (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, source_url TEXT DEFAULT '',
+        type TEXT DEFAULT 'article', status TEXT DEFAULT 'reading', progress INTEGER DEFAULT 0,
+        notes TEXT DEFAULT '', created_at TEXT DEFAULT (datetime('now'))
+      );
       CREATE TABLE IF NOT EXISTS papers (
         id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, authors TEXT DEFAULT '',
         arxiv_id TEXT DEFAULT '', published_date TEXT DEFAULT '', abstract TEXT DEFAULT '',
