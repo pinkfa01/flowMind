@@ -3,7 +3,7 @@ import { Plus, Trash2, Edit3, BookOpen, Star, CheckCircle } from 'lucide-react'
 import { dbQuery, dbRun } from '../lib/db'
 
 export default function English() {
-  const [tab, setTab] = useState<'words' | 'checkin' | 'reading' | 'notes'>('words')
+  const [tab, setTab] = useState<'words' | 'checkin' | 'notes'>('words')
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -12,11 +12,11 @@ export default function English() {
         </div>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>英语学习</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>单词本、每日打卡、阅读、笔记</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>单词本、每日打卡、笔记</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['words', '单词本'], ['checkin', '每日打卡'], ['reading', '阅读'], ['notes', '笔记']].map(([k, l]) => (
+        {[['words', '单词本'], ['checkin', '每日打卡'], ['notes', '笔记']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
@@ -25,7 +25,6 @@ export default function English() {
       </div>
       {tab === 'words' && <Words />}
       {tab === 'checkin' && <CheckIn />}
-      {tab === 'reading' && <ReadingList />}
       {tab === 'notes' && <Reading />}
     </div>
   )

@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
-import { Dumbbell, BookOpen, Atom } from 'lucide-react'
+import { Dumbbell, BookOpen, Atom, BookMarked } from 'lucide-react'
 
 const modules = [
-  { path: '/fitness', title: '健身记录', desc: '训练日志、身体数据、进度图表', icon: Dumbbell, color: '#4c6ef5' },
-  { path: '/english', title: '英语学习', desc: '单词本、每日打卡、阅读笔记', icon: BookOpen, color: '#34c759' },
-  { path: '/physics-ai', title: '物理AI研究', desc: '论文追踪、研究笔记、时间线', icon: Atom, color: '#ff9500' },
+  { path: '/fitness', title: '健身记录', desc: '训练日志、身体数据', icon: Dumbbell, color: '#4c6ef5' },
+  { path: '/english', title: '英语学习', desc: '单词本、每日打卡、笔记', icon: BookOpen, color: '#34c759' },
+  { path: '/reading', title: '读书', desc: '书籍管理与阅读进度', icon: BookMarked, color: '#a855f7' },
+  { path: '/physics-ai', title: '物理AI研究', desc: '投资笔记、行业动态、标的追踪', icon: Atom, color: '#ff9500' },
 ]
 
 export default function Dashboard() {
@@ -12,7 +13,7 @@ export default function Dashboard() {
     <div>
       <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px' }}>Welcome to FlowMind</h2>
       <p style={{ color: 'var(--text2)', fontSize: 14, margin: '0 0 24px' }}>你的个人 AI 工作台</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         {modules.map(m => (
           <Link key={m.path} to={m.path} style={{ textDecoration: 'none' }}>
             <div style={{

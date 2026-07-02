@@ -1,0 +1,165 @@
+import { useState, useEffect } from 'react'
+import { Plus, Trash2, Edit3, BookMarked } from 'lucide-react'
+import { dbQuery, dbRun } from '../lib/db'
+
+export default function Reading() {
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(168,85,247,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <BookMarked size={22} color="#a855f7" />
+        </div>
+        <div>
+          <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>读书</h2>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>书籍管理与阅读进度追踪</p>
+        </div>
+      </div>
+      <ReadingList />
+    </div>
+  )
+}
+
+function ReadingList() {
+  const [items, setItems] = useState<any[]>([])
+  const [showModal, setShowModal] = useState(false)
+  const [editing, setEditing] = useState<any>(null)
+
+  async function load() { setItems(await dbQuery('SELECT * FROM reading_materials ORDER BY created_at DESC')) }
+  useEffect(() => { load() }, [])
+
+  async function del(id: number) {
+    if (!confirm('确定删除？')) return
+    await dbRun('DELETE FROM reading_materials WHERE id = ?', [id])
+    load()
+  }
+
+  async function cycleStatus(item: any) {
+    const next: any = { reading: 'completed', completed: 'archived', archived: 'reading' }
+    await dbRun('UPDATE reading_materials SET status = ? WHERE id = ?', [next[item.status], item.id])
+    load()
+  }
+
+  const statusColors: any = { reading: '#3b82f6', completed: '#22c55e', archived: '#94a3b8' }
+  const statusLabels: any = { reading: '在读', completed: '已读完', archived: '已归档' }
+  const typeLabels: any = { book: '书', audiobook: '有声书', ebook: '电子书' }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ color: 'var(--text2)', fontSize: 13 }}>{items.length} 本书</span>
+        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> 添加书籍</button>
+      </div>
+      {items.length === 0 ? <EmptyState icon={BookMarked} text="暂无读书记录" /> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {items.map(m => (
+            <div key={m.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontWeight: 600, fontSize: 14, flex: 1 }}>{m.title}</span>
+                <span style={{ padding: '2px 8px', borderRadius: 4, background: 'var(--bg)', fontSize: 11, color: 'var(--text2)', marginRight: 8 }}>{typeLabels[m.type] || m.type}</span>
+                <button onClick={() => cycleStatus(m)} style={{ padding: '2px 10px', borderRadius: 4, border: 'none', background: (statusColors[m.status] || '#94a3b8') + '20', color: statusColors[m.status] || '#94a3b8', fontSize: 12, cursor: 'pointer', marginRight: 8 }}>{statusLabels[m.status] || m.status}</button>
+                <button onClick={() => { setEditing(m); setShowModal(true) }} style={iconBtn}><Edit3 size={14} /></button>
+                <button onClick={() => del(m.id)} style={iconBtn}><Trash2 size={14} /></button>
+              </div>
+              {m.source_url && <a href={m.source_url} target="_blank" style={{ color: 'var(--accent)', fontSize: 12, display: 'block', marginTop: 2 }}>详情链接</a>}
+              {m.notes && <p style={{ color: 'var(--text2)', fontSize: 13, margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{m.notes}</p>}
+              {m.status === 'reading' && (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--bg)' }}>
+                      <div style={{ width: `${m.progress}%`, height: '100%', borderRadius: 3, background: 'var(--accent)' }} />
+                    </div>
+                    <span style={{ fontSize: 12, color: 'var(--text3)' }}>{m.progress}%</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {showModal && <ReadingListModal item={editing} onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); load() }} />}
+    </div>
+  )
+}
+
+function ReadingListModal({ item, onClose, onSaved }: { item: any; onClose: () => void; onSaved: () => void }) {
+  const [f, setF] = useState(item ? { title: item.title, source_url: item.source_url, type: item.type, status: item.status, progress: item.progress, notes: item.notes }
+    : { title: '', source_url: '', type: 'book', status: 'reading', progress: 0, notes: '' })
+
+  async function save() {
+    if (!f.title.trim()) return
+    if (item) {
+      await dbRun('UPDATE reading_materials SET title=?, source_url=?, type=?, status=?, progress=?, notes=? WHERE id=?', [f.title, f.source_url, f.type, f.status, f.progress, f.notes, item.id])
+    } else {
+      await dbRun('INSERT INTO reading_materials (title, source_url, type, status, progress, notes) VALUES (?,?,?,?,?,?)', [f.title, f.source_url, f.type, f.status, f.progress, f.notes])
+    }
+    onSaved()
+  }
+
+  return (
+    <Modal onClose={onClose} title={item ? '编辑书籍' : '添加书籍'}>
+      <div>
+        <label style={labelStyle}>书名</label>
+        <input style={{ ...input, marginBottom: 0 }} placeholder="书名" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
+      </div>
+      <div>
+        <label style={labelStyle}>链接（可选）</label>
+        <input style={{ ...input, marginBottom: 0 }} placeholder="https://..." value={f.source_url} onChange={e => setF({ ...f, source_url: e.target.value })} />
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>类型</label>
+          <select style={{ ...input, marginBottom: 0 }} value={f.type} onChange={e => setF({ ...f, type: e.target.value })}>
+            <option value="book">书</option><option value="ebook">电子书</option><option value="audiobook">有声书</option>
+          </select>
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>状态</label>
+          <select style={{ ...input, marginBottom: 0 }} value={f.status} onChange={e => setF({ ...f, status: e.target.value })}>
+            <option value="reading">在读</option><option value="completed">已读完</option><option value="archived">已归档</option>
+          </select>
+        </div>
+      </div>
+      {f.status === 'reading' && (
+        <div>
+          <label style={labelStyle}>阅读进度: {f.progress}%</label>
+          <input type="range" min={0} max={100} value={f.progress} style={{ width: '100%' }} onChange={e => setF({ ...f, progress: Number(e.target.value) })} />
+        </div>
+      )}
+      <div>
+        <label style={labelStyle}>读书笔记</label>
+        <textarea style={{ ...input, resize: 'vertical', minHeight: 60, marginBottom: 0 }} rows={3} placeholder="摘录、生词、感想..." value={f.notes} onChange={e => setF({ ...f, notes: e.target.value })} />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+        <button onClick={onClose} style={btnSecondary}>取消</button>
+        <button onClick={save} style={btnPrimary}>保存</button>
+      </div>
+    </Modal>
+  )
+}
+
+// ── 通用 ──
+const btnPrimary = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--accent)', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer' } as React.CSSProperties
+const btnSecondary = { padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, cursor: 'pointer' } as React.CSSProperties
+const iconBtn = { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4, display: 'flex', alignItems: 'center' } as React.CSSProperties
+const input = { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 13, marginBottom: 8 } as React.CSSProperties
+const labelStyle = { fontSize: 12, fontWeight: 500, marginBottom: 4, display: 'block', color: 'var(--text2)' } as React.CSSProperties
+
+function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{ background: 'var(--card)', borderRadius: 12, padding: 24, width: '90%', maxWidth: 500, maxHeight: '85vh', overflow: 'auto', border: '1px solid var(--border)' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 16px' }}>{title}</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>{children}</div>
+      </div>
+    </div>
+  )
+}
+
+function EmptyState({ icon: Icon, text }: { icon: any; text: string }) {
+  return (
+    <div style={{ padding: 48, textAlign: 'center', color: 'var(--text3)' }}>
+      <Icon size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
+      <p style={{ fontSize: 14 }}>{text}</p>
+    </div>
+  )
+}
