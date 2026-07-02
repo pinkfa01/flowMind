@@ -67,7 +67,7 @@ function initDatabase() {
     `)
 
     // 迁移：给 body_metrics 加新字段（兼容旧数据库）
-    const cols = db.prepare("PRAGMA table_info(body_metrics)").all().map((c: any) => c.name)
+    const cols = db.prepare("PRAGMA table_info(body_metrics)").all().map((c) => c.name)
     if (!cols.includes('hip_cm')) db.exec('ALTER TABLE body_metrics ADD COLUMN hip_cm REAL')
     if (!cols.includes('calf_cm')) db.exec('ALTER TABLE body_metrics ADD COLUMN calf_cm REAL')
     if (!cols.includes('photo')) db.exec('ALTER TABLE body_metrics ADD COLUMN photo TEXT DEFAULT \'\'')
