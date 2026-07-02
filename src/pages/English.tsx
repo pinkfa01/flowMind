@@ -250,7 +250,7 @@ function ReadingModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =
     <Modal onClose={onClose} title="新建阅读笔记">
       <input style={input} placeholder="标题" value={title} onChange={e => setTitle(e.target.value)} />
       <input style={input} placeholder="来源URL" value={url} onChange={e => setUrl(e.target.value)} />
-      <textarea style={{ ...input, resize: 'none' }} rows={6} placeholder="笔记内容" value={content} onChange={e => setContent(e.target.value)} />
+      <textarea style={{ ...input, resize: 'vertical', minHeight: 200 }} rows={10} placeholder="笔记内容" value={content} onChange={e => setContent(e.target.value)} />
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button onClick={onClose} style={btnSecondary}>取消</button>
         <button onClick={save} style={btnPrimary}>保存</button>
@@ -268,7 +268,7 @@ const input = { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1p
 function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{ background: 'var(--card)', borderRadius: 12, padding: 24, width: '90%', maxWidth: 500, maxHeight: '85vh', overflow: 'auto', border: '1px solid var(--border)' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: 'var(--card)', borderRadius: 12, padding: 24, width: '90%', maxWidth: 700, maxHeight: '85vh', overflow: 'auto', border: '1px solid var(--border)' }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 16px' }}>{title}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>{children}</div>
       </div>
