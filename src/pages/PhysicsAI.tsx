@@ -3,7 +3,7 @@ import { Plus, Trash2, Edit3, Atom, FileText, Lightbulb, Clock, FolderGit2, Exte
 import { dbQuery, dbRun } from '../lib/db'
 
 export default function PhysicsAI() {
-  const [tab, setTab] = useState<'papers' | 'notes' | 'timeline' | 'projects'>('papers')
+  const [tab, setTab] = useState<'notes' | 'timeline' | 'projects'>('notes')
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -12,18 +12,17 @@ export default function PhysicsAI() {
         </div>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>物理AI研究</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>研究论文、投资笔记、行业动态、标的追踪</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>投资笔记、行业动态、标的追踪</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['papers', '论文'], ['notes', '投资笔记'], ['timeline', '行业动态'], ['projects', '标的追踪']].map(([k, l]) => (
+        {[['notes', '投资笔记'], ['timeline', '行业动态'], ['projects', '标的追踪']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
           }}>{l}</button>
         ))}
       </div>
-      {tab === 'papers' && <Papers />}
       {tab === 'notes' && <Notes />}
       {tab === 'timeline' && <Timeline />}
       {tab === 'projects' && <Projects />}
