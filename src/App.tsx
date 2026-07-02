@@ -1,17 +1,19 @@
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Dumbbell, BookOpen, Atom, BookMarked, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, Dumbbell, BookOpen, Atom, BookMarked, CalendarDays, Sun, Moon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Dashboard from './pages/Dashboard'
 import Fitness from './pages/Fitness'
 import English from './pages/English'
 import PhysicsAI from './pages/PhysicsAI'
 import Reading from './pages/Reading'
+import Journal from './pages/Journal'
 
 const navItems = [
   { path: '/', label: '仪表盘', icon: LayoutDashboard },
   { path: '/fitness', label: '健身', icon: Dumbbell },
   { path: '/english', label: '英语', icon: BookOpen },
   { path: '/reading', label: '读书', icon: BookMarked },
+  { path: '/journal', label: '日记', icon: CalendarDays },
   { path: '/physics-ai', label: '物理AI', icon: Atom },
 ]
 
@@ -76,6 +78,7 @@ export default function App() {
               <Route path="/fitness" element={<Fitness />} />
               <Route path="/english" element={<English />} />
               <Route path="/reading" element={<Reading />} />
+              <Route path="/journal" element={<Journal />} />
               <Route path="/physics-ai" element={<PhysicsAI />} />
             </Routes>
           </div>
