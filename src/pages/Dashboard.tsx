@@ -14,7 +14,7 @@ export default function Dashboard() {
     <div>
       <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px' }}>Welcome to FlowMind</h2>
       <p style={{ color: 'var(--text2)', fontSize: 14, margin: '0 0 24px' }}>你的个人 AI 工作台</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
         {modules.map(m => (
           <Link key={m.path} to={m.path} style={{ textDecoration: 'none' }}>
             <div style={{
