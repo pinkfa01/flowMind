@@ -81,13 +81,13 @@ function WorkoutLog() {
                 <div style={{ padding: '0 16px 12px 40px' }}>
                   <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
                     <thead><tr style={{ color: 'var(--text3)' }}>
-                      <th style={th}>动作</th><th style={th}>组</th><th style={th}>次数</th><th style={th}>重量kg</th><th style={th}>RPE</th>
+                      <th style={th}>动作</th><th style={th}>组</th><th style={th}>次数</th><th style={th}>重量kg</th>
                     </tr></thead>
                     <tbody>
                       {w.sets.map((s: any) => (
                         <tr key={s.id} style={{ borderTop: '1px solid var(--border)' }}>
                           <td style={td}>{s.exercise}</td><td style={td}>{s.set_number}</td>
-                          <td style={td}>{s.reps}</td><td style={td}>{s.weight_kg}</td><td style={td}>{s.rpe || '-'}</td>
+                          <td style={td}>{s.reps}</td><td style={td}>{s.weight_kg}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -148,7 +148,6 @@ function WorkoutModal({ workout, onClose, onSaved }: { workout: Workout | null; 
           <div style={{ flex: 1, textAlign: 'center' }}>第几组</div>
           <div style={{ flex: 1, textAlign: 'center' }}>次数</div>
           <div style={{ flex: 1, textAlign: 'center' }}>重量(kg)</div>
-          <div style={{ flex: 1, textAlign: 'center' }}>RPE(1-10)</div>
           <div style={{ width: 28 }} />
         </div>
         {sets.map((s, i) => (
@@ -157,11 +156,10 @@ function WorkoutModal({ workout, onClose, onSaved }: { workout: Workout | null; 
             <input style={{ ...input, flex: 1, marginBottom: 0, textAlign: 'center' }} type="number" placeholder="1" value={s.set_number} onChange={e => { const n = [...sets]; n[i].set_number = Number(e.target.value); setSets(n) }} />
             <input style={{ ...input, flex: 1, marginBottom: 0, textAlign: 'center' }} type="number" placeholder="10" value={s.reps} onChange={e => { const n = [...sets]; n[i].reps = Number(e.target.value); setSets(n) }} />
             <input style={{ ...input, flex: 1, marginBottom: 0, textAlign: 'center' }} type="number" placeholder="60" value={s.weight_kg} onChange={e => { const n = [...sets]; n[i].weight_kg = Number(e.target.value); setSets(n) }} />
-            <input style={{ ...input, flex: 1, marginBottom: 0, textAlign: 'center' }} type="number" placeholder="7" value={s.rpe || ''} onChange={e => { const n = [...sets]; n[i].rpe = Number(e.target.value); setSets(n) }} />
             <button onClick={() => setSets(sets.filter((_, j) => j !== i))} style={iconBtn}><Trash2 size={14} /></button>
           </div>
         ))}
-        <button onClick={() => setSets([...sets, { exercise: '', set_number: sets.length + 1, reps: 10, weight_kg: 0, rpe: 0 }])} style={{ ...btnPrimary, marginTop: 4 }}><Plus size={14} /> 添加组</button>
+        <button onClick={() => setSets([...sets, { exercise: '', set_number: sets.length + 1, reps: 10, weight_kg: 0 }])} style={{ ...btnPrimary, marginTop: 4 }}><Plus size={14} /> 添加组</button>
       </div>
       <div>
         <label style={{ fontSize: 13, fontWeight: 500, marginBottom: 4, display: 'block' }}>备注（可选）</label>
