@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Edit3, ChevronDown, ChevronRight, Dumbbell, Trophy } from 'lucide-react'
+import { Plus, Trash2, Edit3, ChevronDown, ChevronRight, Dumbbell } from 'lucide-react'
 import { dbQuery, dbRun } from '../lib/db'
 
 interface Workout { id: number; date: string; name: string; notes: string; duration_min: number; sets: any[] }
 
 export default function Fitness() {
-  const [tab, setTab] = useState<'log' | 'metrics' | 'charts'>('log')
+  const [tab, setTab] = useState<'log' | 'metrics'>('log')
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -18,7 +18,7 @@ export default function Fitness() {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['log', '训练日志'], ['metrics', '身体数据'], ['charts', '进度图表']].map(([k, l]) => (
+        {[['log', '训练日志'], ['metrics', '身体数据']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
@@ -27,7 +27,6 @@ export default function Fitness() {
       </div>
       {tab === 'log' && <WorkoutLog />}
       {tab === 'metrics' && <BodyMetrics />}
-      {tab === 'charts' && <ProgressCharts />}
     </div>
   )
 }
@@ -269,48 +268,6 @@ function MetricModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =>
         <button onClick={save} style={btnPrimary}>保存</button>
       </div>
     </Modal>
-  )
-}
-
-function ProgressCharts() {
-  const [weightData, setWeightData] = useState<any[]>([])
-  const [prData, setPrData] = useState<any[]>([])
-
-  useEffect(() => {
-    dbQuery('SELECT date, weight_kg FROM body_metrics WHERE weight_kg IS NOT NULL ORDER BY date').then(setWeightData)
-    dbQuery('SELECT exercise, MAX(weight_kg) as max_weight FROM workout_sets GROUP BY exercise ORDER BY max_weight DESC').then(setPrData)
-  }, [])
-
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>体重变化</h3>
-        {weightData.length === 0 ? <EmptyState icon={Dumbbell} text="暂无数据" /> : (
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 150 }}>
-            {weightData.slice(-20).map((d, i) => {
-              const max = Math.max(...weightData.map(w => w.weight_kg))
-              const min = Math.min(...weightData.map(w => w.weight_kg))
-              const range = max - min || 1
-              const h = ((d.weight_kg - min) / range) * 100 + 20
-              return <div key={i} title={`${d.date}: ${d.weight_kg}kg`} style={{ flex: 1, height: `${h}%`, background: 'var(--accent)', borderRadius: '4px 4px 0 0', minWidth: 8 }} />
-            })}
-          </div>
-        )}
-      </div>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>个人记录 PR</h3>
-        {prData.length === 0 ? <EmptyState icon={Trophy} text="暂无数据" /> : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {prData.map((pr, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
-                <span style={{ fontSize: 13 }}>{pr.exercise}</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>{pr.max_weight}kg</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
   )
 }
 
