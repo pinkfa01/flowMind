@@ -131,17 +131,15 @@ function WordModal({ word, onClose, onSaved }: { word: any; onClose: () => void;
 function CheckIn() {
   const [logs, setLogs] = useState<any[]>([])
   const today = new Date().toISOString().slice(0, 10)
-  const [type, setType] = useState('vocabulary')
   const [duration, setDuration] = useState(0)
-  const [wordsLearned, setWordsLearned] = useState(0)
   const [notes, setNotes] = useState('')
 
   async function load() { setLogs(await dbQuery('SELECT * FROM study_logs WHERE date = ? ORDER BY id DESC', [today])) }
   useEffect(() => { load() }, [])
 
   async function checkin() {
-    await dbRun('INSERT INTO study_logs (date, type, duration_min, words_learned, notes) VALUES (?,?,?,?,?)', [today, type, duration, wordsLearned, notes])
-    setType('vocabulary'); setDuration(0); setWordsLearned(0); setNotes('')
+    await dbRun('INSERT INTO study_logs (date, type, duration_min, words_learned, notes) VALUES (?,?,?,?,?)', [today, 'general', duration, 0, notes])
+    setDuration(0); setNotes('')
     load()
   }
 
@@ -155,15 +153,8 @@ function CheckIn() {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
         <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>Today's Check-in</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <select style={input} value={type} onChange={e => setType(e.target.value)}>
-            <option value="vocabulary">Vocabulary</option><option value="reading">Reading</option>
-            <option value="listening">Listening</option><option value="speaking">Speaking</option>
-          </select>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input style={input} type="number" placeholder="Duration (min)" value={duration || ''} onChange={e => setDuration(Number(e.target.value))} />
-            <input style={input} type="number" placeholder="Words learned" value={wordsLearned || ''} onChange={e => setWordsLearned(Number(e.target.value))} />
-          </div>
-          <textarea style={{ ...input, resize: 'none' }} rows={2} placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
+          <input style={input} type="number" placeholder="Duration (min)" value={duration || ''} onChange={e => setDuration(Number(e.target.value))} />
+          <textarea style={{ ...input, resize: 'vertical', minHeight: 80 }} rows={3} placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
           <button onClick={checkin} style={btnPrimary}><CheckCircle size={14} /> Check in</button>
         </div>
       </div>
@@ -185,9 +176,9 @@ function CheckIn() {
         </div>
         <h4 style={{ fontSize: 13, fontWeight: 500, margin: '12px 0 6px' }}>Today's Logs</h4>
         {logs.length === 0 ? <p style={{ color: 'var(--text3)', fontSize: 13 }}>None</p> : logs.map(l => (
-          <div key={l.id} style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
-            <span>{l.type} - {l.duration_min}min</span>
-            <span style={{ color: 'var(--text3)' }}>{l.words_learned} words</span>
+          <div key={l.id} style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
+            <span>{l.duration_min}min</span>
+            {l.notes && <span style={{ color: 'var(--text3)', marginLeft: 8 }}>— {l.notes}</span>}
           </div>
         ))}
       </div>
