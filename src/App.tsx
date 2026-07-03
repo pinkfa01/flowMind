@@ -1,5 +1,5 @@
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Dumbbell, BookOpen, Atom, BookMarked, CalendarDays, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, Dumbbell, BookOpen, TrendingUp, BookMarked, CalendarDays, Sun, Moon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Dashboard from './pages/Dashboard'
 import Fitness from './pages/Fitness'
@@ -14,7 +14,7 @@ const navItems = [
   { path: '/english', label: 'English', icon: BookOpen },
   { path: '/reading', label: 'Reading', icon: BookMarked },
   { path: '/journal', label: 'Journal', icon: CalendarDays },
-  { path: '/physics-ai', label: 'AI Research', icon: Atom },
+  { path: '/physics-ai', label: 'Investment', icon: TrendingUp },
 ]
 
 function Sidebar() {

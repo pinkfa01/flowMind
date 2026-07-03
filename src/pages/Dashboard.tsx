@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import { Dumbbell, BookOpen, Atom, BookMarked, CalendarDays } from 'lucide-react'
+import { Dumbbell, BookOpen, TrendingUp, BookMarked, CalendarDays } from 'lucide-react'
 
 const modules = [
   { path: '/fitness', title: 'Fitness', desc: 'Workout logs & body metrics', icon: Dumbbell, color: '#4c6ef5' },
   { path: '/english', title: 'English', desc: 'Vocabulary, daily check-in & notes', icon: BookOpen, color: '#34c759' },
   { path: '/reading', title: 'Reading', desc: 'Book management & notes', icon: BookMarked, color: '#a855f7' },
   { path: '/journal', title: 'Journal', desc: 'Daily mood & thoughts', icon: CalendarDays, color: '#ec4899' },
-  { path: '/physics-ai', title: 'AI Research', desc: 'Investment notes, timeline & watchlist', icon: Atom, color: '#ff9500' },
+  { path: '/physics-ai', title: 'Investment', desc: 'Market views & portfolio tracking', icon: TrendingUp, color: '#ff9500' },
 ]
 
 export default function Dashboard() {

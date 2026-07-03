@@ -86,6 +86,36 @@ function initDatabase() {
     if (!pcols.includes('ticker')) db.exec('ALTER TABLE tracked_projects ADD COLUMN ticker TEXT DEFAULT \'\'')
     if (!pcols.includes('price')) db.exec('ALTER TABLE tracked_projects ADD COLUMN price REAL')
     if (!pcols.includes('position')) db.exec("ALTER TABLE tracked_projects ADD COLUMN position TEXT DEFAULT ''")
+
+    // 投资观点表
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS investment_views (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        source TEXT NOT NULL,
+        date TEXT NOT NULL,
+        view TEXT DEFAULT '',
+        reason TEXT DEFAULT '',
+        my_take TEXT DEFAULT '',
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+    `)
+
+    // 持仓表
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS investment_positions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        company TEXT NOT NULL,
+        ticker TEXT DEFAULT '',
+        price REAL,
+        quantity REAL,
+        dividend REAL,
+        target_price REAL,
+        reason TEXT DEFAULT '',
+        status TEXT DEFAULT 'holding',
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+    `)
+
     console.log('[FlowMind] Database initialized successfully')
   } catch (err) {
     console.error('[FlowMind] Database init failed:', err.message)
