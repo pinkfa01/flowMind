@@ -116,6 +116,15 @@ function initDatabase() {
       );
     `)
 
+    // 投资理念表
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS investment_philosophies (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+    `)
+
     console.log('[FlowMind] Database initialized successfully')
   } catch (err) {
     console.error('[FlowMind] Database init failed:', err.message)

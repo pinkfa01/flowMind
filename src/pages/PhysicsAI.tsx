@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Edit3, TrendingUp, DollarSign, Eye } from 'lucide-react'
+import { Plus, Trash2, Edit3, TrendingUp, DollarSign, Eye, Lightbulb } from 'lucide-react'
 import { dbQuery, dbRun } from '../lib/db'
 
 export default function PhysicsAI() {
-  const [tab, setTab] = useState<'views' | 'positions'>('views')
+  const [tab, setTab] = useState<'views' | 'positions' | 'philosophy'>('views')
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -12,11 +12,11 @@ export default function PhysicsAI() {
         </div>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Investment</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>Market views & portfolio tracking</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>Market views, portfolio & philosophy</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['views', 'Views'], ['positions', 'Positions']].map(([k, l]) => (
+        {[['views', 'Views'], ['positions', 'Positions'], ['philosophy', 'Philosophy']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
@@ -25,6 +25,7 @@ export default function PhysicsAI() {
       </div>
       {tab === 'views' && <Views />}
       {tab === 'positions' && <Positions />}
+      {tab === 'philosophy' && <Philosophy />}
     </div>
   )
 }
@@ -277,6 +278,50 @@ function PositionModal({ item, onClose, onSaved }: { item: any; onClose: () => v
         <button onClick={save} style={btnPrimary}>Save</button>
       </div>
     </Modal>
+  )
+}
+
+// ── Philosophy (理念) ─────────────────────────────────
+
+function Philosophy() {
+  const [items, setItems] = useState<any[]>([])
+  const [text, setText] = useState('')
+
+  async function load() { setItems(await dbQuery('SELECT * FROM investment_philosophies ORDER BY created_at DESC')) }
+  useEffect(() => { load() }, [])
+
+  async function add() {
+    if (!text.trim()) return
+    await dbRun('INSERT INTO investment_philosophies (content) VALUES (?)', [text.trim()])
+    setText('')
+    load()
+  }
+
+  async function del(id: number) {
+    if (!confirm('Delete this philosophy?')) return
+    await dbRun('DELETE FROM investment_philosophies WHERE id = ?', [id])
+    load()
+  }
+
+  return (
+    <div>
+      <div style={{ marginBottom: 16 }}>
+        <textarea style={{ ...input, resize: 'vertical', minHeight: 60, marginBottom: 8 }} rows={3} placeholder="Write your investment philosophy..." value={text} onChange={e => setText(e.target.value)} />
+        <button onClick={add} style={btnPrimary}><Plus size={14} /> Add</button>
+      </div>
+      {items.length === 0 ? <EmptyState icon={Lightbulb} text="No philosophy yet" /> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {items.map(p => (
+            <div key={p.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <Lightbulb size={16} color="#f59e0b" style={{ marginTop: 2, flexShrink: 0 }} />
+              <p style={{ color: 'var(--text)', fontSize: 14, margin: 0, flex: 1, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{p.content}</p>
+              <span style={{ color: 'var(--text3)', fontSize: 11, flexShrink: 0 }}>{p.created_at?.slice(0, 10)}</span>
+              <button onClick={() => del(p.id)} style={iconBtn}><Trash2 size={14} /></button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
