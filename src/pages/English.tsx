@@ -82,7 +82,10 @@ function Words() {
                 <button onClick={() => del(w.id)} style={iconBtn}><Trash2 size={14} /></button>
               </div>
               <p style={{ color: 'var(--text2)', fontSize: 13, margin: '4px 0 0' }}>{w.definition}</p>
-              {w.example && <p style={{ color: 'var(--text3)', fontSize: 12, margin: '2px 0 0', fontStyle: 'italic' }}>{w.example}</p>}
+              {w.example && (() => {
+                try { const arr = JSON.parse(w.example); return Array.isArray(arr) ? arr.map((ex: string, i: number) => <p key={i} style={{ color: 'var(--text3)', fontSize: 12, margin: '2px 0 0', fontStyle: 'italic' }}>{ex}</p>) : [<p key={0} style={{ color: 'var(--text3)', fontSize: 12, margin: '2px 0 0', fontStyle: 'italic' }}>{w.example}</p>] }
+                catch { return <p style={{ color: 'var(--text3)', fontSize: 12, margin: '2px 0 0', fontStyle: 'italic' }}>{w.example}</p> }
+              })()}
             </div>
           ))}
         </div>
@@ -94,13 +97,22 @@ function Words() {
 
 function WordModal({ word, onClose, onSaved }: { word: any; onClose: () => void; onSaved: () => void }) {
   const [form, setForm] = useState(word || { word: '', phonetic: '', definition: '', example: '', category: 'general', proficiency: 0 })
+  const [examples, setExamples] = useState<string[]>(() => {
+    if (word?.example) {
+      try { const arr = JSON.parse(word.example); return Array.isArray(arr) ? arr : [word.example] }
+      catch { return [word.example] }
+    }
+    return ['']
+  })
 
   async function save() {
     if (!form.word.trim()) return
+    const filtered = examples.filter(e => e.trim())
+    const exampleJson = filtered.length > 0 ? JSON.stringify(filtered) : ''
     if (word) {
-      await dbRun('UPDATE words SET word=?, phonetic=?, definition=?, example=?, category=?, proficiency=? WHERE id=?', [form.word, form.phonetic, form.definition, form.example, form.category, form.proficiency, word.id])
+      await dbRun('UPDATE words SET word=?, phonetic=?, definition=?, example=?, category=?, proficiency=? WHERE id=?', [form.word, form.phonetic, form.definition, exampleJson, form.category, form.proficiency, word.id])
     } else {
-      await dbRun('INSERT INTO words (word, phonetic, definition, example, category, proficiency) VALUES (?,?,?,?,?,?)', [form.word, form.phonetic, form.definition, form.example, form.category, form.proficiency])
+      await dbRun('INSERT INTO words (word, phonetic, definition, example, category, proficiency) VALUES (?,?,?,?,?,?)', [form.word, form.phonetic, form.definition, exampleJson, form.category, form.proficiency])
     }
     onSaved()
   }
@@ -110,7 +122,16 @@ function WordModal({ word, onClose, onSaved }: { word: any; onClose: () => void;
       <input style={input} placeholder="Word" value={form.word} onChange={e => setForm({ ...form, word: e.target.value })} />
       <input style={input} placeholder="Phonetic" value={form.phonetic} onChange={e => setForm({ ...form, phonetic: e.target.value })} />
       <input style={input} placeholder="Definition" value={form.definition} onChange={e => setForm({ ...form, definition: e.target.value })} />
-      <input style={input} placeholder="Example" value={form.example} onChange={e => setForm({ ...form, example: e.target.value })} />
+      <div>
+        <label style={labelStyle}>Examples</label>
+        {examples.map((ex, i) => (
+          <div key={i} style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+            <input style={{ ...input, flex: 1, marginBottom: 0 }} placeholder={`Example ${i + 1}`} value={ex} onChange={e => { const n = [...examples]; n[i] = e.target.value; setExamples(n) }} />
+            {examples.length > 1 && <button onClick={() => setExamples(examples.filter((_, j) => j !== i))} style={iconBtn}><Trash2 size={14} /></button>}
+          </div>
+        ))}
+        <button onClick={() => setExamples([...examples, ''])} style={{ ...btnPrimary, marginTop: 4 }}><Plus size={14} /> Add Example</button>
+      </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <select style={input} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
           <option value="general">General</option><option value="ielts">IELTS</option><option value="toefl">TOEFL</option>
@@ -265,7 +286,7 @@ const labelStyle = { fontSize: 12, fontWeight: 500, marginBottom: 4, display: 'b
 
 function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--card)', borderRadius: 12, padding: 24, width: '90%', maxWidth: 700, maxHeight: '85vh', overflow: 'auto', border: '1px solid var(--border)' }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 16px' }}>{title}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>{children}</div>

@@ -334,7 +334,7 @@ const labelStyle = { fontSize: 12, fontWeight: 500, marginBottom: 4, display: 'b
 
 function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--card)', borderRadius: 12, padding: 24, width: '90%', maxWidth: 550, maxHeight: '85vh', overflow: 'auto', border: '1px solid var(--border)' }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 16px' }}>{title}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>{children}</div>
