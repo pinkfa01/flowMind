@@ -73,6 +73,12 @@ function initDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, url TEXT DEFAULT '',
         description TEXT DEFAULT '', last_update TEXT DEFAULT '', status TEXT DEFAULT 'watching'
       );
+      CREATE TABLE IF NOT EXISTS todos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL,
+        description TEXT DEFAULT '', due_date TEXT DEFAULT '',
+        priority TEXT DEFAULT 'medium', completed INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
     `)
 
     // 迁移：给 body_metrics 加新字段（兼容旧数据库）
