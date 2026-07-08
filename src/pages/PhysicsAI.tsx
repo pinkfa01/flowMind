@@ -30,7 +30,7 @@ export default function PhysicsAI() {
   )
 }
 
-// ── Views (观点) ──────────────────────────────────────
+// ── Views ────────────────────────────────────────────
 
 function Views() {
   const [items, setItems] = useState<any[]>([])
@@ -72,24 +72,24 @@ function Views() {
               </div>
               <p style={{ color: 'var(--text)', fontSize: 14, margin: '8px 0 4px', fontWeight: 500 }}>{v.view}</p>
               {v.reason && <p style={{ color: 'var(--text2)', fontSize: 13, margin: '0 0 8px' }}><span style={{ color: 'var(--text3)' }}>Reason: </span>{v.reason}</p>}
-              {/* My Take / 备注 */}
+              {/* My Take / Notes */}
               <div style={{ marginTop: 8 }}>
                 {editingMyTake === v.id ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <textarea style={{ ...input, resize: 'vertical', minHeight: 50, marginBottom: 0, fontSize: 12 }} rows={2} placeholder="添加你的想法..." defaultValue={v.my_take || ''} id={`mytake-${v.id}`} />
+                    <textarea style={{ ...input, resize: 'vertical', minHeight: 50, marginBottom: 0, fontSize: 12 }} rows={2} placeholder="Add your thoughts..." defaultValue={v.my_take || ''} id={`mytake-${v.id}`} />
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => { const el = document.getElementById(`mytake-${v.id}`) as HTMLTextAreaElement; saveMyTake(v.id, el.value) }} style={{ ...btnPrimary, fontSize: 11, padding: '3px 10px' }}>保存</button>
-                      <button onClick={() => setEditingMyTake(null)} style={{ ...btnSecondary, fontSize: 11, padding: '3px 10px' }}>取消</button>
+                      <button onClick={() => { const el = document.getElementById(`mytake-${v.id}`) as HTMLTextAreaElement; saveMyTake(v.id, el.value) }} style={{ ...btnPrimary, fontSize: 11, padding: '3px 10px' }}>Save</button>
+                      <button onClick={() => setEditingMyTake(null)} style={{ ...btnSecondary, fontSize: 11, padding: '3px 10px' }}>Cancel</button>
                     </div>
                   </div>
                 ) : v.my_take ? (
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                    <span style={{ fontSize: 12, color: 'var(--text3)', flexShrink: 0, marginTop: 1 }}>备注:</span>
+                    <span style={{ fontSize: 12, color: 'var(--text3)', flexShrink: 0, marginTop: 1 }}>Notes:</span>
                     <span style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.5, whiteSpace: 'pre-wrap', flex: 1 }}>{v.my_take}</span>
                     <button onClick={() => setEditingMyTake(v.id)} style={{ ...iconBtn, flexShrink: 0 }}><Edit3 size={12} /></button>
                   </div>
                 ) : (
-                  <button onClick={() => setEditingMyTake(v.id)} style={{ fontSize: 12, color: 'var(--text3)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.5 }}>+ 添加备注</button>
+                  <button onClick={() => setEditingMyTake(v.id)} style={{ fontSize: 12, color: 'var(--text3)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.5 }}>+ Add Note</button>
                 )}
               </div>
             </div>
@@ -141,7 +141,7 @@ function ViewModal({ item, onClose, onSaved }: { item: any; onClose: () => void;
   )
 }
 
-// ── Positions (持仓) ──────────────────────────────────
+// ── Positions ────────────────────────────────────────
 
 function Positions() {
   const [items, setItems] = useState<any[]>([])
@@ -281,7 +281,7 @@ function PositionModal({ item, onClose, onSaved }: { item: any; onClose: () => v
   )
 }
 
-// ── Philosophy (理念) ─────────────────────────────────
+// ── Philosophy ───────────────────────────────────────
 
 function Philosophy() {
   const [items, setItems] = useState<any[]>([])
@@ -325,7 +325,7 @@ function Philosophy() {
   )
 }
 
-// ── 通用 ──
+// ── Shared ──
 const btnPrimary = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--accent)', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer' } as React.CSSProperties
 const btnSecondary = { padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, cursor: 'pointer' } as React.CSSProperties
 const iconBtn = { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4, display: 'flex', alignItems: 'center' } as React.CSSProperties

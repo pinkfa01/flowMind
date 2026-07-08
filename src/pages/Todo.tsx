@@ -12,7 +12,7 @@ export default function Todo() {
   useEffect(() => { load() }, [])
 
   async function del(id: number) {
-    if (!confirm('删除这条待办？')) return
+    if (!confirm('Delete this todo?')) return
     await dbRun('DELETE FROM todos WHERE id = ?', [id])
     load()
   }
@@ -28,7 +28,7 @@ export default function Todo() {
     return true
   })
 
-  const priorities: any = { high: { color: '#ef4444', label: '高' }, medium: { color: '#f59e0b', label: '中' }, low: { color: '#22c55e', label: '低' } }
+  const priorities: any = { high: { color: '#ef4444', label: 'High' }, medium: { color: '#f59e0b', label: 'Medium' }, low: { color: '#22c55e', label: 'Low' } }
 
   return (
     <div>
@@ -38,16 +38,16 @@ export default function Todo() {
         </div>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Todo</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>待办事项</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>To-do list</p>
         </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', gap: 4, padding: 2, background: 'var(--card)', borderRadius: 6 }}>
           {[
-            ['all', '全部'],
-            ['active', '未完成'],
-            ['done', '已完成'],
+            ['all', 'All'],
+            ['active', 'Active'],
+            ['done', 'Completed'],
           ].map(([k, l]) => (
             <button key={k} onClick={() => setFilter(k as any)} style={{
               padding: '4px 12px', borderRadius: 4, border: 'none', fontSize: 12, cursor: 'pointer', fontWeight: filter === k ? 600 : 400,
@@ -56,13 +56,13 @@ export default function Todo() {
             }}>{l}</button>
           ))}
         </div>
-        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> 新建待办</button>
+        <button onClick={() => { setEditing(null); setShowModal(true) }} style={btnPrimary}><Plus size={14} /> New Todo</button>
       </div>
 
       {filtered.length === 0 ? (
         <div style={{ padding: 48, textAlign: 'center', color: 'var(--text3)' }}>
           <CheckSquare size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
-          <p style={{ fontSize: 14 }}>{filter === 'done' ? '还没有完成的待办' : '暂无待办，点击新建添加一条'}</p>
+          <p style={{ fontSize: 14 }}>{filter === 'done' ? 'No completed todos yet' : 'No todos yet, click New Todo to add one'}</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -135,28 +135,28 @@ function TodoModal({ entry, onClose, onSaved }: { entry: any; onClose: () => voi
   }
 
   const priorityOptions = [
-    { key: 'high', label: '🔴 高', color: '#ef4444' },
-    { key: 'medium', label: '🟡 中', color: '#f59e0b' },
-    { key: 'low', label: '🟢 低', color: '#22c55e' },
+    { key: 'high', label: 'High', color: '#ef4444' },
+    { key: 'medium', label: 'Medium', color: '#f59e0b' },
+    { key: 'low', label: 'Low', color: '#22c55e' },
   ]
 
   return (
-    <Modal onClose={onClose} title={entry ? '编辑待办' : '新建待办'}>
+    <Modal onClose={onClose} title={entry ? 'Edit Todo' : 'New Todo'}>
       <div>
-        <label style={labelStyle}>标题</label>
-        <input style={input} placeholder="待办事项..." value={title} onChange={e => setTitle(e.target.value)} autoFocus />
+        <label style={labelStyle}>Title</label>
+        <input style={input} placeholder="What needs to be done?" value={title} onChange={e => setTitle(e.target.value)} autoFocus />
       </div>
       <div>
-        <label style={labelStyle}>描述 (可选)</label>
-        <textarea style={{ ...input, resize: 'vertical', minHeight: 80 }} rows={3} placeholder="详细描述" value={description} onChange={e => setDescription(e.target.value)} />
+        <label style={labelStyle}>Description (optional)</label>
+        <textarea style={{ ...input, resize: 'vertical', minHeight: 80 }} rows={3} placeholder="Details..." value={description} onChange={e => setDescription(e.target.value)} />
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}>
-          <label style={labelStyle}>截止日期 (可选)</label>
+          <label style={labelStyle}>Due Date (optional)</label>
           <input style={input} type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
         </div>
         <div style={{ flex: 1 }}>
-          <label style={labelStyle}>优先级</label>
+          <label style={labelStyle}>Priority</label>
           <div style={{ display: 'flex', gap: 4 }}>
             {priorityOptions.map(p => (
               <button key={p.key} onClick={() => setPriority(p.key)} style={{
@@ -171,8 +171,8 @@ function TodoModal({ entry, onClose, onSaved }: { entry: any; onClose: () => voi
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-        <button onClick={onClose} style={btnSecondary}>取消</button>
-        <button onClick={save} style={btnPrimary}>保存</button>
+        <button onClick={onClose} style={btnSecondary}>Cancel</button>
+        <button onClick={save} style={btnPrimary}>Save</button>
       </div>
     </Modal>
   )

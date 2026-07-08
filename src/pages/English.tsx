@@ -12,11 +12,11 @@ export default function English() {
         </div>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>English</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>词汇 & 笔记</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>Vocabulary & Notes</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['words', '词汇'], ['notes', '笔记']].map(([k, l]) => (
+        {[['words', 'Vocabulary'], ['notes', 'Notes']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
