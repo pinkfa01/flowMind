@@ -72,24 +72,24 @@ function Views() {
               </div>
               <p style={{ color: 'var(--text)', fontSize: 14, margin: '8px 0 4px', fontWeight: 500 }}>{v.view}</p>
               {v.reason && <p style={{ color: 'var(--text2)', fontSize: 13, margin: '0 0 8px' }}><span style={{ color: 'var(--text3)' }}>Reason: </span>{v.reason}</p>}
-              {/* My Take */}
-              <div style={{ marginTop: 8, padding: 10, borderRadius: 6, background: 'var(--bg)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)' }}>My Take</span>
-                  {editingMyTake !== v.id && v.my_take && <button onClick={() => setEditingMyTake(v.id)} style={iconBtn}><Edit3 size={12} /></button>}
-                </div>
+              {/* My Take / 备注 */}
+              <div style={{ marginTop: 8 }}>
                 {editingMyTake === v.id ? (
-                  <div>
-                    <textarea style={{ ...input, resize: 'vertical', minHeight: 60, marginBottom: 4 }} rows={3} placeholder="Your thoughts..." defaultValue={v.my_take || ''} id={`mytake-${v.id}`} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <textarea style={{ ...input, resize: 'vertical', minHeight: 50, marginBottom: 0, fontSize: 12 }} rows={2} placeholder="添加你的想法..." defaultValue={v.my_take || ''} id={`mytake-${v.id}`} />
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => { const el = document.getElementById(`mytake-${v.id}`) as HTMLTextAreaElement; saveMyTake(v.id, el.value) }} style={btnPrimary}>Save</button>
-                      <button onClick={() => setEditingMyTake(null)} style={btnSecondary}>Cancel</button>
+                      <button onClick={() => { const el = document.getElementById(`mytake-${v.id}`) as HTMLTextAreaElement; saveMyTake(v.id, el.value) }} style={{ ...btnPrimary, fontSize: 11, padding: '3px 10px' }}>保存</button>
+                      <button onClick={() => setEditingMyTake(null)} style={{ ...btnSecondary, fontSize: 11, padding: '3px 10px' }}>取消</button>
                     </div>
                   </div>
                 ) : v.my_take ? (
-                  <p style={{ color: 'var(--text)', fontSize: 13, margin: 0, whiteSpace: 'pre-wrap' }}>{v.my_take}</p>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                    <span style={{ fontSize: 12, color: 'var(--text3)', flexShrink: 0, marginTop: 1 }}>备注:</span>
+                    <span style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.5, whiteSpace: 'pre-wrap', flex: 1 }}>{v.my_take}</span>
+                    <button onClick={() => setEditingMyTake(v.id)} style={{ ...iconBtn, flexShrink: 0 }}><Edit3 size={12} /></button>
+                  </div>
                 ) : (
-                  <button onClick={() => setEditingMyTake(v.id)} style={{ fontSize: 12, color: 'var(--text3)', background: 'none', border: '1px dashed var(--border)', padding: '4px 12px', borderRadius: 4, cursor: 'pointer' }}>+ Add your take</button>
+                  <button onClick={() => setEditingMyTake(v.id)} style={{ fontSize: 12, color: 'var(--text3)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.5 }}>+ 添加备注</button>
                 )}
               </div>
             </div>

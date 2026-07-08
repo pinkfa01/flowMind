@@ -1,7 +1,6 @@
-import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Dumbbell, BookOpen, TrendingUp, BookMarked, CalendarDays, Sun, Moon } from 'lucide-react'
+import { HashRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom'
+import { Dumbbell, BookOpen, TrendingUp, BookMarked, CalendarDays, Sun, Moon } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import Dashboard from './pages/Dashboard'
 import Fitness from './pages/Fitness'
 import English from './pages/English'
 import PhysicsAI from './pages/PhysicsAI'
@@ -9,7 +8,6 @@ import Reading from './pages/Reading'
 import Journal from './pages/Journal'
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/fitness', label: 'Fitness', icon: Dumbbell },
   { path: '/english', label: 'English', icon: BookOpen },
   { path: '/reading', label: 'Reading', icon: BookMarked },
@@ -74,7 +72,7 @@ export default function App() {
           <Header dark={dark} toggleDark={() => setDark(!dark)} />
           <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Navigate to="/fitness" replace />} />
               <Route path="/fitness" element={<Fitness />} />
               <Route path="/english" element={<English />} />
               <Route path="/reading" element={<Reading />} />

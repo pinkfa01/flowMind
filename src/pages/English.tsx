@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Edit3, BookOpen, Star, CheckCircle } from 'lucide-react'
+import { Plus, Trash2, Edit3, BookOpen, Star } from 'lucide-react'
 import { dbQuery, dbRun } from '../lib/db'
 
 export default function English() {
-  const [tab, setTab] = useState<'words' | 'checkin' | 'notes'>('words')
+  const [tab, setTab] = useState<'words' | 'notes'>('words')
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -12,11 +12,11 @@ export default function English() {
         </div>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>English</h2>
-          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>Vocabulary, daily check-in & notes</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', margin: 0 }}>词汇 & 笔记</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card)', borderRadius: 8, marginBottom: 16, width: 'fit-content' }}>
-        {[['words', 'Vocabulary'], ['checkin', 'Daily Check-in'], ['notes', 'Notes']].map(([k, l]) => (
+        {[['words', '词汇'], ['notes', '笔记']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} style={{
             padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
             background: tab === k ? 'var(--accent)' : 'transparent', color: tab === k ? '#fff' : 'var(--text2)'
@@ -24,7 +24,6 @@ export default function English() {
         ))}
       </div>
       {tab === 'words' && <Words />}
-      {tab === 'checkin' && <CheckIn />}
       {tab === 'notes' && <Notes />}
     </div>
   )
@@ -146,64 +145,6 @@ function WordModal({ word, onClose, onSaved }: { word: any; onClose: () => void;
         <button onClick={save} style={btnPrimary}>Save</button>
       </div>
     </Modal>
-  )
-}
-
-function CheckIn() {
-  const [logs, setLogs] = useState<any[]>([])
-  const today = new Date().toISOString().slice(0, 10)
-  const [duration, setDuration] = useState(0)
-  const [notes, setNotes] = useState('')
-
-  async function load() { setLogs(await dbQuery('SELECT * FROM study_logs WHERE date = ? ORDER BY id DESC', [today])) }
-  useEffect(() => { load() }, [])
-
-  async function checkin() {
-    await dbRun('INSERT INTO study_logs (date, type, duration_min, words_learned, notes) VALUES (?,?,?,?,?)', [today, 'general', duration, 0, notes])
-    setDuration(0); setNotes('')
-    load()
-  }
-
-  const weekDays = [...Array(7)].map((_, i) => {
-    const d = new Date(); d.setDate(d.getDate() - 6 + i)
-    return d.toISOString().slice(0, 10)
-  })
-
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>Today's Check-in</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <input style={input} type="number" placeholder="Duration (min)" value={duration || ''} onChange={e => setDuration(Number(e.target.value))} />
-          <textarea style={{ ...input, resize: 'vertical', minHeight: 80 }} rows={3} placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
-          <button onClick={checkin} style={btnPrimary}><CheckCircle size={14} /> Check in</button>
-        </div>
-      </div>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>This Week</h3>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-          {weekDays.map(d => {
-            const checked = logs.some(l => l.date === d)
-            const isToday = d === today
-            return (
-              <div key={d} style={{ textAlign: 'center' }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: checked ? 'var(--accent)' : 'var(--bg)', color: checked ? '#fff' : 'var(--text3)', border: isToday ? '2px solid var(--accent)' : 'none' }}>
-                  {checked && <CheckCircle size={16} />}
-                </div>
-                <span style={{ fontSize: 10, color: 'var(--text3)' }}>{d.slice(5)}</span>
-              </div>
-            )
-          })}
-        </div>
-        <h4 style={{ fontSize: 13, fontWeight: 500, margin: '12px 0 6px' }}>Today's Logs</h4>
-        {logs.length === 0 ? <p style={{ color: 'var(--text3)', fontSize: 13 }}>None</p> : logs.map(l => (
-          <div key={l.id} style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
-            <span>{l.duration_min}min</span>
-            {l.notes && <span style={{ color: 'var(--text3)', marginLeft: 8 }}>— {l.notes}</span>}
-          </div>
-        ))}
-      </div>
-    </div>
   )
 }
 
