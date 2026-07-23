@@ -79,6 +79,18 @@ function initDatabase() {
         priority TEXT DEFAULT 'medium', completed INTEGER DEFAULT 0,
         created_at TEXT DEFAULT (datetime('now'))
       );
+      CREATE TABLE IF NOT EXISTS spending_categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
+        color TEXT DEFAULT '#4c6ef5', icon TEXT DEFAULT '',
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS spending_records (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL,
+        category_id INTEGER NOT NULL, amount REAL NOT NULL,
+        description TEXT DEFAULT '', is_necessary INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (category_id) REFERENCES spending_categories(id) ON DELETE CASCADE
+      );
     `)
 
     // 迁移：给 body_metrics 加新字段（兼容旧数据库）

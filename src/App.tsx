@@ -1,5 +1,5 @@
 import { HashRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom'
-import { Dumbbell, BookOpen, TrendingUp, BookMarked, CalendarDays, CheckSquare, Sun, Moon } from 'lucide-react'
+import { Dumbbell, BookOpen, TrendingUp, BookMarked, CalendarDays, CheckSquare, Wallet, Sun, Moon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Fitness from './pages/Fitness'
 import English from './pages/English'
@@ -7,6 +7,7 @@ import PhysicsAI from './pages/PhysicsAI'
 import Reading from './pages/Reading'
 import Journal from './pages/Journal'
 import Todo from './pages/Todo'
+import Spending from './pages/Spending'
 
 const navItems = [
   { path: '/fitness', label: 'Fitness', icon: Dumbbell },
@@ -14,6 +15,7 @@ const navItems = [
   { path: '/reading', label: 'Reading', icon: BookMarked },
   { path: '/journal', label: 'Journal', icon: CalendarDays },
   { path: '/todo', label: 'Todo', icon: CheckSquare },
+  { path: '/spending', label: 'Spending', icon: Wallet },
   { path: '/physics-ai', label: 'Investment', icon: TrendingUp },
 ]
 
@@ -80,6 +82,7 @@ export default function App() {
               <Route path="/reading" element={<Reading />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/todo" element={<Todo />} />
+              <Route path="/spending" element={<Spending />} />
               <Route path="/physics-ai" element={<PhysicsAI />} />
             </Routes>
           </div>
